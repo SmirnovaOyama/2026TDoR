@@ -5,6 +5,7 @@ import { formatDate, formatNumber } from './dom';
 import { PixelMap } from './map';
 import { setupReveal } from './reveal';
 import { setupScroll } from './scroll';
+import { setupVigil } from './vigil';
 import { setupYears } from './years';
 import { buildUnitRows } from './wall';
 
@@ -29,3 +30,4 @@ setupReveal();
 setupScroll(data.total);
 new PixelMap(grid, data);
 setupYears(data);
+setupVigil();

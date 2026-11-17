@@ -3,64 +3,79 @@ export const WALL_COLUMNS = 21; // the undercounting figure's width
 const square = () => document.createElement('i');
 
 /*
- * The count as a pixel candle, one square per person. 273 squares make it exactly:
- * a flame of 52, one square of wick and a body of 11 × 20. The squares light from
- * the base up as you scroll, so the flame catches with the last people counted.
+ * Pixel candles. The count is one, a square per person: 273 squares make a teardrop
+ * flame of 52, one square of wick and a body of 11 × 20. It lights from the base up
+ * as you scroll, so the flame catches with the last people counted. The candle in
+ * the Vigils section uses the same builder at a smaller size.
  */
-export const CANDLE_COLUMNS = 11;
-const FLAME = [1, 1, 1, 3, 3, 5, 5, 7, 7, 7, 7, 5]; // squares per row, tip to base: a teardrop
+export interface CandleCell { r: number; c: number; colour: string; part: 'flame' | 'wick' | 'wax' }
 
-interface Cell { r: number; c: number; colour: string }
+export interface CandleShape {
+  cols: number;
+  /** Squares per row of the flame, tip to base. */
+  flame: number[];
+  /** Squares of wax; a remainder short of a full row is centred on the top row. */
+  body: number;
+  /** Columns where wax runs down from the top, and how many rows. */
+  drips: [number, number][];
+}
 
-function candle(total: number) {
-  const cols = CANDLE_COLUMNS;
+export function candleCells({ cols, flame, body, drips }: CandleShape) {
   const mid = (cols - 1) / 2;
-  const cells: Cell[] = [];
-  FLAME.forEach((w, r) => {
+  const cells: CandleCell[] = [];
+  flame.forEach((w, r) => {
     const half = (w - 1) / 2;
     for (let c = mid - half; c <= mid + half; c++) {
       const edge = half - Math.abs(c - mid); // 0 at the flame's edge
       const colour = w === 1 || edge === 1 ? '--flame-mid' : edge === 0 ? '--flame-outer' : '--flame-core';
-      cells.push({ r, c, colour });
+      cells.push({ r, c, colour, part: 'flame' });
     }
   });
-  const wickRow = FLAME.length;
-  cells.push({ r: wickRow, c: mid, colour: '--wick' });
+  const wickRow = flame.length;
+  cells.push({ r: wickRow, c: mid, colour: '--wick', part: 'wick' });
 
-  // The body takes the rest: full rows of wax, any remainder centred on the top row.
-  const body = Math.max(0, total - cells.length);
   const bodyRows = Math.ceil(body / cols);
   const top = wickRow + 1;
   const firstRowCount = body - (bodyRows - 1) * cols;
-  const drips = new Set([`${top + 1}:3`, `${top + 2}:3`, `${top + 3}:3`, `${top + 1}:7`, `${top + 2}:7`]);
+  const dripAt = new Set(drips.flatMap(([c, depth]) => Array.from({ length: depth }, (_, i) => `${top + 1 + i}:${c}`)));
   for (let i = 0; i < bodyRows; i++) {
     const r = top + i;
     const n = i === 0 ? firstRowCount : cols;
     const from = Math.floor((cols - n) / 2);
     for (let c = from; c < from + n; c++) {
-      const colour = i === 0 || drips.has(`${r}:${c}`) || c === 1 ? '--wax-light' : c >= cols - 2 ? '--wax-shade' : '--wax';
-      cells.push({ r, c, colour });
+      const colour = i === 0 || dripAt.has(`${r}:${c}`) || c === 1 ? '--wax-light' : c >= cols - 2 ? '--wax-shade' : '--wax';
+      cells.push({ r, c, colour, part: 'wax' });
     }
   }
   return { cols, rows: top + bodyRows, cells };
 }
 
-/** The count as a candle of squares, lit from the base up. */
-export function buildWall(host: HTMLElement, total: number) {
-  const { cols, rows, cells } = candle(total);
+/** Lays a candle's squares into a grid host, with empty slots around the flame. */
+export function renderCandle(host: HTMLElement, shape: CandleShape) {
+  const { cols, rows, cells } = candleCells(shape);
   host.style.setProperty('--cols', String(cols));
   host.style.setProperty('--rows', String(rows));
   const at = new Map(cells.map((cell) => [cell.r * cols + cell.c, cell]));
-  const squares = new Map<Cell, HTMLElement>();
-  const slots = Array.from({ length: cols * rows }, (_, i) => {
+  const squares = new Map<CandleCell, HTMLElement>();
+  host.replaceChildren(...Array.from({ length: cols * rows }, (_, i) => {
     const cell = at.get(i);
     if (!cell) return document.createElement('span');
     const s = square();
     s.style.setProperty('--c', `var(${cell.colour})`);
+    s.dataset.part = cell.part;
     squares.set(cell, s);
     return s;
-  });
-  host.replaceChildren(...slots);
+  }));
+  return { cells, squares };
+}
+
+const COUNT_FLAME = [1, 1, 1, 3, 3, 5, 5, 7, 7, 7, 7, 5];
+
+/** The count as a candle of squares, lit from the base up. */
+export function buildWall(host: HTMLElement, total: number) {
+  const cols = 11;
+  const body = Math.max(0, total - COUNT_FLAME.reduce((a, b) => a + b, 0) - 1);
+  const { cells, squares } = renderCandle(host, { cols, flame: COUNT_FLAME, body, drips: [[3, 3], [7, 2]] });
   // Lighting order: bottom row first, left to right, up to the tip of the flame.
   const order = [...cells].sort((a, b) => b.r - a.r || a.c - b.c).map((cell) => squares.get(cell)!);
   let lit = 0;

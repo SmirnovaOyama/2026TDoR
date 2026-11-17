@@ -12,7 +12,7 @@ A page for **20 November 2026**. It shows the trans people reported murdered bet
 - **Chosen names.** Research on chosen names among trans young people.
 - **Support and care.** Studies on gender-affirming care and family support.
 - **History.** From Rita Hester's murder in 1998 to the first vigil in 1999.
-- **Vigils.** Where to find a vigil, where TGEU lists the people in its count, and helplines you can tap to call.
+- **Vigils.** Where to find a vigil, a pixel candle to press and hold until it lights, where TGEU lists the people in its count, and helplines you can tap to call.
 
 Every figure is cited at the foot of the page. The data holds counts only: no names or other details of any person.
 
