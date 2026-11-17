@@ -20,13 +20,10 @@
   --control-thumb: oklch(33% 0.009 88);
   --focus-ring: oklch(86% 0.06 355);
 
-  /* the accent is the trans flag's pink; terracotta stays as the candle's flame */
+  /* the accent is the trans flag's pink */
   --accent: oklch(86% 0.06 355);
   --accent-ink: oklch(86% 0.06 355);
   --on-accent: oklch(16.5% 0.005 90);
-  --flame: oklch(72.5% 0.105 39);
-  --flame-core: oklch(88.5% 0.055 42);
-  --wax: oklch(85% 0.008 89);
   --wall-off: oklch(20.5% 0.006 90);
   --ghost-line: oklch(51.7% 0.013 90);
 

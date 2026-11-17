@@ -11,7 +11,6 @@ A page for **20 November 2026**. It shows the trans people reported murdered bet
 - **Suicide among trans women in China.** Deaths the murder count leaves out, with survey findings, the 2022 hormone sales ban, a link to the One Among Us memorial and China's 12356 support line.
 - **Chosen names.** Research on chosen names, gender-affirming care and family support for trans young people.
 - **History.** From Rita Hester's murder in 1998 to the first vigil in 1999.
-- **Light a candle.** Press and hold to light it.
 
 Every figure is cited at the foot of the page. The data holds counts only: no names or other details of any person.
 
@@ -44,7 +43,7 @@ npm run deploy     # build, then upload with wrangler
 
 ## Design
 
-Built on the Oyama Tracker design system's dark tokens, on a true black ground: system type, a terracotta accent used as candlelight, the system's heatmap ramp for the map, and the trans flag stripes from its pixel cat. Every picture on the page is built from one unit, the square. The page has no gradients and respects reduced motion.
+Built on the Oyama Tracker design system's dark tokens, on a true black ground: system type, and the trans flag stripes from its pixel cat for the accent, the count wall and the map's colour scale. Every picture on the page is built from one unit, the square. The page has no gradients and respects reduced motion.
 
 ## If you need someone now
 
