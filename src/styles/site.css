@@ -48,16 +48,6 @@ h2 {
 h3 { margin: 0; }
 p { margin: 0; }
 .prose { display: grid; gap: 20px; color: var(--text-muted); max-width: 40em; }
-/* Running text is justified, so its right edge lines up, and hyphenated so the
-   spacing stays even in a narrow column. Headings, numbers, labels and the larger
-   hero text stay flush left. */
-.prose p, .finding p, .timeline p, .count-note, .caveat, .sources li {
-  text-align: justify;
-  -webkit-hyphens: auto;
-  hyphens: auto;
-  hyphenate-limit-chars: 7 3 3;
-  text-wrap: pretty;
-}
 .prose strong { color: var(--text); font-weight: 500; }
 .prose h3 { font: 600 17px/24px var(--font-sans); letter-spacing: -0.01em; color: var(--text); }
 /* Follows straight on from the sticky chosen-names stage, which already leaves room above. */
