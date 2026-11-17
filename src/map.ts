@@ -11,10 +11,10 @@ const LEGEND_LABEL: Record<Mode, string> = {
   allYears: 'People reported killed since 2008',
 };
 
-// Motion, in milliseconds
-const RIPPLE_STEP = 26; // delay per cell of distance from where the country was chosen
+// Motion, in milliseconds. Steps are per 2.5° of distance, so finer grids move at the same speed.
+const RIPPLE_STEP = 26; // delay per 2.5° of distance from where the country was chosen
 const RIPPLE_CELL = 380; // how long each square takes to light
-const SWEEP_STEP = 5; // delay per column when the period changes
+const SWEEP_STEP = 5; // delay per 2.5° of longitude when the period changes
 const SWEEP_CELL = 420;
 const DIM_MS = 420;
 const COUNT_MS = 650;
@@ -24,6 +24,16 @@ const DIMMED = 0.32;
 const OPEN_LON = -130;
 /** How far, in CSS pixels, a tap may land from a country with reports and still choose it. */
 const TOUCH_REACH_PX = 14;
+/** Islands too small for the atlas are drawn at this fraction of a square. */
+const ISLAND_SCALE = 0.5;
+
+// China is shown to the public map standard (自然资规〔2023〕2号). Taiwan and the two SARs
+// carry the same thematic colour as the mainland, so they are coloured from China's total
+// and light with it when China is chosen; each can still be chosen on its own.
+const CHINA = ['China', 'Taiwan (China)', 'Hong Kong SAR', 'Macau SAR'];
+const PART_OF: Record<string, string> = { 'Taiwan (China)': 'China', 'Hong Kong SAR': 'China', 'Macau SAR': 'China' };
+/** Places the map leaves uncoloured and does not offer to choose. */
+const UNCOLOURED: Record<string, string> = { Kashmir: 'Disputed, not coloured' };
 
 const easeOut = (x: number) => 1 - Math.pow(1 - x, 3);
 
@@ -77,6 +87,9 @@ export class PixelMap {
   private readonly land = token('--map-land');
   private readonly pickColour = token('--map-pick');
   private readonly jitter: Float32Array;
+  private readonly islands: Set<number>;
+  /** Cells per 2.5°: motion is scaled by this so it reads the same at any resolution. */
+  private readonly k: number;
   private size = 0;
   private dpr = 1;
   private opened = false;
@@ -108,6 +121,8 @@ export class PixelMap {
       at += grid.rle[i + 1];
     }
     this.jitter = Float32Array.from({ length: grid.cols * grid.rows }, (_, i) => ((i * 2654435761) % 1000) / 1000);
+    this.islands = new Set(grid.islands);
+    this.k = 2.5 / grid.step;
 
     // Where each country's squares sit on average, for ripples started from the list.
     const sums = new Map<number, { c: number; r: number; n: number }>();
@@ -138,6 +153,7 @@ export class PixelMap {
     this.canvas.addEventListener('pointerleave', () => this.setHover(null));
     this.canvas.addEventListener('click', (e) => {
       const name = this.nameAt(e, true);
+      if (name && UNCOLOURED[name]) return;
       const { c, r } = this.cellAt(e);
       this.select(name === this.pick?.name ? null : name, { c, r });
     });
@@ -160,9 +176,21 @@ export class PixelMap {
     return level;
   }
 
+  /** The count a place is coloured by: China's parts share one colour, from their total. */
+  private heatCount(name: string, mode: Mode) {
+    if (UNCOLOURED[name]) return 0;
+    if (CHINA.includes(name)) return CHINA.reduce((n, part) => n + this.count(this.byName.get(part), mode), 0);
+    return this.count(this.byName.get(name), mode);
+  }
+
   private colourFor(name: string, mode: Mode) {
-    const level = this.level(this.count(this.byName.get(name), mode), mode);
+    const level = this.level(this.heatCount(name, mode), mode);
     return level ? this.heat[level - 1] : this.land;
+  }
+
+  /** Whether a square belongs to the chosen or hovered place: choosing China lights all of it. */
+  private within(name: string, target: string | undefined | null) {
+    return !!target && (name === target || (target === 'China' && CHINA.includes(name)));
   }
 
   private resize() {
@@ -223,8 +251,9 @@ export class PixelMap {
     const { ctx, size, grid } = this;
     if (!size) return false;
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    const gap = size > 5 * this.dpr ? Math.max(this.dpr, size * 0.16) : size * 0.08;
-    const front = this.reveal * (grid.cols + 24);
+    const { k } = this;
+    const gap = size * (size > 3 * this.dpr ? 0.2 : 0.12);
+    const front = this.reveal * (grid.cols + 24 * k);
     const motion = !reducedMotion;
     let busy = false;
 
@@ -244,42 +273,96 @@ export class PixelMap {
         const id = this.cells[i];
         if (!id) continue;
         const name = grid.names[id];
-        const reveal = clamp((front - c - this.jitter[i] * 16) / 8);
+        const reveal = clamp((front - c - this.jitter[i] * 16 * k) / (8 * k));
         if (reveal <= 0) continue;
+        const scale = this.islands.has(i) ? ISLAND_SCALE : 1;
 
         // Period change: the new colours sweep in from the west.
-        const m = motion ? easeOut(clamp((now - this.modeStart - c * SWEEP_STEP) / SWEEP_CELL)) : 1;
+        const m = motion ? easeOut(clamp((now - this.modeStart - (c * SWEEP_STEP) / k) / SWEEP_CELL)) : 1;
         if (m < 1) busy = true;
-        const isPicked = name === this.pick?.name;
-        const isLeaving = name === this.leaving?.name;
+        const isPicked = this.within(name, this.pick?.name);
+        const isLeaving = this.within(name, this.leaving?.name);
         const fade = isPicked || isLeaving ? 1 : dim;
 
         if (m < 1 && this.prevMode !== this.mode) {
           ctx.globalAlpha = reveal * fade * (1 - m);
           ctx.fillStyle = this.colourFor(name, this.prevMode);
-          square(c, r, 1);
+          square(c, r, scale);
         }
         ctx.globalAlpha = reveal * fade * (this.prevMode !== this.mode ? m : 1);
-        ctx.fillStyle = name === this.hover && !isPicked ? this.heat[4] : this.colourFor(name, this.mode);
-        square(c, r, 1);
+        const hovered = this.within(name, this.hover) && !isPicked && !UNCOLOURED[name];
+        ctx.fillStyle = hovered ? this.heat[4] : this.colourFor(name, this.mode);
+        square(c, r, scale);
 
         // A chosen country lights in a ripple from where it was chosen.
         const lit = (p: Pick, out: boolean) => {
           const d = Math.hypot(c - p.c, r - p.r);
-          let t = motion ? clamp((now - p.start - (out ? 0 : d * RIPPLE_STEP)) / (out ? DIM_MS : RIPPLE_CELL)) : 1;
+          let t = motion ? clamp((now - p.start - (out ? 0 : (d * RIPPLE_STEP) / k)) / (out ? DIM_MS : RIPPLE_CELL)) : 1;
           if (t < 1) busy = true;
           t = out ? 1 - easeOut(t) : t;
           if (t <= 0) return;
           const pop = out ? 1 : 1 + 0.45 * Math.sin(Math.PI * easeOut(t));
           ctx.globalAlpha = reveal * (out ? t : easeOut(t));
           ctx.fillStyle = this.pickColour;
-          square(c, r, pop);
+          square(c, r, pop * scale);
         };
         if (isPicked) lit(this.pick!, false);
         else if (isLeaving) lit(this.leaving!, true);
       }
     }
+    if (this.drawDashes(now, front, dim)) busy = true;
     ctx.globalAlpha = 1;
+    return busy;
+  }
+
+  /** The South China Sea ten-dash line, drawn in China's colour and lit with it. */
+  private drawDashes(now: number, front: number, dim: number) {
+    const { ctx, size, grid, k } = this;
+    const motion = !reducedMotion;
+    const x = (lon: number) => ((lon - grid.lonMin) / grid.step) * size;
+    const y = (lat: number) => ((grid.latMax - lat) / grid.step) * size;
+    const chinaPicked = this.within('China', this.pick?.name);
+    const chinaLeaving = this.within('China', this.leaving?.name);
+    let busy = false;
+    ctx.lineWidth = Math.max(this.dpr, size * 0.22);
+    ctx.lineCap = 'butt';
+    ctx.lineJoin = 'round';
+    for (const dash of grid.dashes) {
+      const [lon, lat] = dash[Math.floor(dash.length / 2)];
+      const c = (lon - grid.lonMin) / grid.step;
+      const r = (grid.latMax - lat) / grid.step;
+      const reveal = clamp((front - c) / (8 * k));
+      if (reveal <= 0) continue;
+      const path = () => {
+        ctx.beginPath();
+        dash.forEach(([lo, la], i) => (i ? ctx.lineTo(x(lo), y(la)) : ctx.moveTo(x(lo), y(la))));
+        ctx.stroke();
+      };
+      const m = motion ? easeOut(clamp((now - this.modeStart - (c * SWEEP_STEP) / k) / SWEEP_CELL)) : 1;
+      if (m < 1) busy = true;
+      const fade = chinaPicked || chinaLeaving ? 1 : dim;
+      if (m < 1 && this.prevMode !== this.mode) {
+        ctx.globalAlpha = reveal * fade * (1 - m);
+        ctx.strokeStyle = this.colourFor('China', this.prevMode);
+        path();
+      }
+      ctx.globalAlpha = reveal * fade * (this.prevMode !== this.mode ? m : 1);
+      ctx.strokeStyle = this.colourFor('China', this.mode);
+      path();
+      const p = chinaPicked ? this.pick! : chinaLeaving ? this.leaving! : null;
+      if (p) {
+        const out = !chinaPicked;
+        const d = Math.hypot(c - p.c, r - p.r);
+        let t = motion ? clamp((now - p.start - (out ? 0 : (d * RIPPLE_STEP) / k)) / (out ? DIM_MS : RIPPLE_CELL)) : 1;
+        if (t < 1) busy = true;
+        t = out ? 1 - easeOut(t) : easeOut(t);
+        if (t > 0) {
+          ctx.globalAlpha = reveal * t;
+          ctx.strokeStyle = this.pickColour;
+          path();
+        }
+      }
+    }
     return busy;
   }
 
@@ -324,7 +407,7 @@ export class PixelMap {
     const n = this.count(this.byName.get(name));
     this.tip.replaceChildren(name);
     const span = document.createElement('span');
-    span.textContent = n ? formatNumber(n) : 'None reported';
+    span.textContent = UNCOLOURED[name] ?? (n ? formatNumber(n) : 'None reported');
     this.tip.append(span);
     const half = this.tip.offsetWidth / 2;
     const width = this.canvas.clientWidth;
@@ -336,7 +419,7 @@ export class PixelMap {
     this.tip.hidden = !name;
     if (name === this.hover) return;
     this.hover = name;
-    this.canvas.style.cursor = name ? 'pointer' : 'default';
+    this.canvas.style.cursor = name && !UNCOLOURED[name] ? 'pointer' : 'default';
     this.kick();
   }
 
@@ -435,7 +518,7 @@ export class PixelMap {
       const c = this.byName.get(name);
       const n = c?.[this.mode] ?? 0;
       const other = c?.[thisYear ? 'allYears' : 'thisYear'] ?? 0;
-      sub = c?.region || 'No reports since 2008';
+      sub = PART_OF[name] ?? (c?.region || 'No reports since 2008');
       title = name;
       value = n;
       if (n > 0) {
@@ -453,7 +536,9 @@ export class PixelMap {
         facts = [['Share', 'None'], ['Rank', 'Not ranked'], [otherLabel, formatNumber(other)]];
         note = other > 0
           ? `No murders were reported here ${thisYear ? 'this year' : 'before this year'}.`
-          : 'No murders reported since the count began in 2008. This can reflect less violence or less reporting.';
+          : PART_OF[name]
+            ? 'No murders reported here since the count began in 2008. On the map it takes the colour of the rest of China.'
+            : 'No murders reported since the count began in 2008. This can reflect less violence or less reporting.';
       }
     }
 

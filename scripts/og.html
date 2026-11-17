@@ -7,16 +7,20 @@
   :root {
     --text: oklch(98.7% 0.002 89);
     --text-muted: oklch(72% 0.01 88);
-    --flag-blue: #9fd4ee;
-    --flag-pink: #f6bfce;
-    --flag-white: #f2eef0;
+    --flame-outer: oklch(70% 0.16 45);
+    --flame-mid: oklch(83% 0.14 75);
+    --flame-core: oklch(95% 0.06 95);
+    --wick: oklch(40% 0.02 60);
+    --wax: oklch(89% 0.02 85);
+    --wax-light: oklch(96% 0.012 85);
+    --wax-shade: oklch(77% 0.025 75);
   }
   html, body { margin: 0; width: 1200px; height: 630px; background: #000; overflow: hidden; }
   body {
     box-sizing: border-box;
     padding: 80px 80px 80px 88px;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 420px;
+    grid-template-columns: minmax(0, 1fr) 260px;
     align-items: center;
     gap: 72px;
     color: var(--text);
@@ -28,8 +32,8 @@
   h1 { margin: 0; font-weight: 300; font-size: 76px; line-height: 0.98; letter-spacing: -0.04em; }
   .count { font: 400 24px/34px -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif; color: var(--text-muted); max-width: 30em; }
   .count b { color: var(--text); font-weight: 500; }
-  .wall { display: grid; grid-template-columns: repeat(21, 1fr); gap: 5px; }
-  .wall i { display: block; aspect-ratio: 1; border-radius: 2px; }
+  .wall { display: grid; grid-template-columns: repeat(11, 12px); grid-auto-rows: 12px; gap: 3px; justify-content: center; }
+  .wall i { display: block; border-radius: 2px; }
 </style>
 </head>
 <body>
@@ -40,15 +44,33 @@
   </div>
   <div class="wall" id="wall"></div>
   <script>
-    // One square per person, striped like the wall on the page: 21 × 13 is the trans flag.
-    const total = 273, cols = 21, rows = Math.ceil(total / cols);
-    const half = (rows - 1) / 2;
+    // The count's pixel candle, as on the page (src/wall.ts): one square per person,
+    // a teardrop flame of 52, one square of wick and a body of 11 × 20.
+    const total = 273, cols = 11, mid = 5;
+    const FLAME = [1, 1, 1, 3, 3, 5, 5, 7, 7, 7, 7, 5];
+    const cells = new Map();
+    FLAME.forEach((w, r) => {
+      const half = (w - 1) / 2;
+      for (let c = mid - half; c <= mid + half; c++) {
+        const edge = half - Math.abs(c - mid);
+        cells.set(r * cols + c, w === 1 || edge === 1 ? '--flame-mid' : edge === 0 ? '--flame-outer' : '--flame-core');
+      }
+    });
+    const bodyTop = FLAME.length + 1;
+    cells.set(FLAME.length * cols + mid, '--wick');
+    const bodyRows = Math.ceil((total - cells.size) / cols);
+    const drips = new Set([`${bodyTop + 1}:3`, `${bodyTop + 2}:3`, `${bodyTop + 3}:3`, `${bodyTop + 1}:7`, `${bodyTop + 2}:7`]);
+    for (let r = bodyTop; r < bodyTop + bodyRows; r++) {
+      for (let c = 0; c < cols; c++) {
+        cells.set(r * cols + c, r === bodyTop || drips.has(`${r}:${c}`) || c === 1 ? '--wax-light' : c >= cols - 2 ? '--wax-shade' : '--wax');
+      }
+    }
     const wall = document.getElementById('wall');
-    for (let i = 0; i < total; i++) {
-      const d = Math.abs(Math.floor(i / cols) - half) / half;
-      const sq = document.createElement('i');
-      sq.style.background = `var(${d < 0.3 ? '--flag-white' : d < 0.6 ? '--flag-pink' : '--flag-blue'})`;
-      wall.append(sq);
+    for (let i = 0; i < cols * (bodyTop + bodyRows); i++) {
+      const colour = cells.get(i);
+      const el = document.createElement(colour ? 'i' : 'span');
+      if (colour) el.style.background = `var(${colour})`;
+      wall.append(el);
     }
   </script>
 </body>

@@ -37,6 +37,15 @@
   --map-pick: #9fd4ee;
   --year-bar: oklch(42% 0.011 90);
 
+  /* the count's pixel candle: a flame in three steps, the wick and the wax */
+  --flame-outer: oklch(70% 0.16 45);
+  --flame-mid: oklch(83% 0.14 75);
+  --flame-core: oklch(95% 0.06 95);
+  --wick: oklch(40% 0.02 60);
+  --wax: oklch(89% 0.02 85);
+  --wax-light: oklch(96% 0.012 85);
+  --wax-shade: oklch(77% 0.025 75);
+
   /* the pixel cat's stripes: the trans flag, at the system's bright values so they hold on black */
   --flag-blue: #9fd4ee;
   --flag-pink: #f6bfce;

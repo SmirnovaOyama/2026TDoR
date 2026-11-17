@@ -24,6 +24,10 @@ export interface WorldGrid {
   latMax: number;
   names: string[];
   rle: number[];
+  /** Cells drawn as small squares: islands too small for the atlas. */
+  islands: number[];
+  /** The South China Sea ten-dash line, as [lon, lat] points per dash. */
+  dashes: [number, number][][];
 }
 
 export type Mode = 'thisYear' | 'allYears';

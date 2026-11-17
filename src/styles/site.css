@@ -79,7 +79,7 @@ sup a { text-decoration: none; padding-inline: 1px; }
 .count-stage { position: sticky; top: 0; height: 100vh; height: 100svh; display: grid; align-content: center; }
 .count-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 36rem);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   grid-template-areas: "text wall" "note wall";
   align-items: center;
   gap: 24px 64px;
@@ -91,15 +91,24 @@ sup a { text-decoration: none; padding-inline: 1px; }
 .count-facts li { padding-block: 12px; border-bottom: 1px solid var(--border); font: 500 15px/22px var(--font-sans); display: flex; justify-content: space-between; gap: 16px; }
 .count-facts li span:last-child { color: var(--text-muted); font-weight: 400; text-align: right; font-variant-numeric: tabular-nums; }
 .count-note { grid-area: note; align-self: start; font-size: 15px; line-height: 22px; color: var(--text-muted); max-width: 30em; }
-.wall-figure { grid-area: wall; margin: 0; display: grid; gap: 12px; min-width: 0; }
+.wall-figure { grid-area: wall; margin: 0; display: grid; justify-items: center; justify-self: center; gap: 14px; min-width: 0; --wall-h: min(74svh, 720px); }
+.wall-figure .caveat { text-align: center; }
 
-/* One square per person, read like names on a wall: left to right, row by row. */
-.wall { display: grid; grid-template-columns: repeat(var(--cols, 21), minmax(0, 1fr)); gap: clamp(3px, 0.45vw, 6px); }
-.wall i { display: block; aspect-ratio: 1; border-radius: 2px; background: var(--wall-off); transition: background 500ms var(--ease-focus); }
-.wall i.on { background: var(--c, var(--flag-pink)); animation: kindle 1100ms var(--ease-focus) both; }
+/* One square per person, in the shape of a candle. The candle is sized by height, so
+   its squares stay square and the whole of it fits on screen while it sticks. */
+.wall {
+  --gap: clamp(2px, 0.4vh, 4px);
+  --cell: calc((var(--wall-h) - (var(--rows, 33) - 1) * var(--gap)) / var(--rows, 33));
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 11), var(--cell));
+  grid-auto-rows: var(--cell);
+  gap: var(--gap);
+}
+.wall i { display: block; border-radius: 2px; background: var(--wall-off); transition: background 500ms var(--ease-focus); }
+.wall i.on { background: var(--c, var(--wax)); animation: kindle 1100ms var(--ease-focus) both; }
 @keyframes kindle {
-  0% { background: var(--flag-white); transform: scale(1.4); }
-  100% { background: var(--c, var(--flag-pink)); transform: scale(1); }
+  0% { background: var(--flame-core); transform: scale(1.4); }
+  100% { background: var(--c, var(--wax)); transform: scale(1); }
 }
 @media (max-width: 860px) {
   .count-grid { grid-template-columns: minmax(0, 1fr); grid-template-areas: "text" "wall" "note"; gap: 20px; }
@@ -109,8 +118,8 @@ sup a { text-decoration: none; padding-inline: 1px; }
   .count-facts li { flex-direction: column-reverse; justify-content: flex-end; gap: 0; padding-block: 10px 0; border-bottom: 0; border-top: 1px solid var(--border); }
   .count-facts li span:first-child { font-size: 13px; line-height: 18px; font-weight: 400; color: var(--text-muted); }
   .count-facts li span:last-child { text-align: left; color: var(--text); font-weight: 500; }
-  /* keep the whole wall on screen while it sticks */
-  .wall-figure { width: min(100%, max(240px, calc((100svh - 380px) * 21 / 13))); }
+  /* keep the whole candle on screen while it sticks */
+  .wall-figure { --wall-h: max(240px, calc(100svh - 400px)); }
 }
 @media (max-width: 860px) and (max-height: 960px) { .count-note { display: none; } }
 
@@ -163,7 +172,7 @@ sup a { text-decoration: none; padding-inline: 1px; }
 @media (max-width: 600px) {
   .map-frame { overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scrollbar-width: none; margin-inline: calc(-1 * var(--gutter)); padding-inline: var(--gutter); }
   .map-frame::-webkit-scrollbar { display: none; }
-  .map-frame canvas { width: 230%; max-width: none; }
+  .map-frame canvas { width: 300%; max-width: none; }
 }
 .map-tip {
   position: absolute;
@@ -255,7 +264,7 @@ sup a { text-decoration: none; padding-inline: 1px; }
 .ghosts { margin: 8px 0; display: grid; gap: 14px; }
 .ghost-wall { display: grid; gap: clamp(3px, 0.6vw, 5px); }
 .ghost-row { display: grid; grid-template-columns: repeat(var(--cols, 21), minmax(0, 1fr)); gap: inherit; opacity: var(--o, 1); }
-.ghost-row i { display: block; aspect-ratio: 1; border-radius: 2px; background: var(--flag-blue); }
+.ghost-row i { display: block; aspect-ratio: 1; border-radius: 2px; background: var(--wax); }
 .ghost-row.uncounted i { background: transparent; box-shadow: inset 0 0 0 1px var(--ghost-line); }
 .ghost-row.uncounted { opacity: 0; transform: translateY(8px); transition: opacity 900ms var(--ease-focus), transform 1100ms var(--ease-spring); }
 .ghost-row.uncounted.shown { opacity: var(--o, 1); transform: none; }
