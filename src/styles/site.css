@@ -273,7 +273,10 @@ sup a { text-decoration: none; padding-inline: 1px; }
 .years-read { display: flex; align-items: baseline; gap: 12px; font-variant-numeric: tabular-nums; }
 .years-read b { font: 300 40px/1 var(--font-display); letter-spacing: -0.03em; }
 .years-read span { font-size: 13px; color: var(--text-muted); }
-.years-chart { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 4px; align-items: end; height: 220px; }
+.years-chart { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 4px; align-items: end; height: 220px; touch-action: pan-y; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+/* While a finger scrubs the chart, the other years step back. */
+.years-chart .year i { transition: opacity 240ms var(--ease-focus); }
+.years-chart.scrubbing .year:not(.on) i { opacity: 0.45; }
 .year { all: unset; height: 100%; display: flex; flex-direction: column-reverse; gap: 2px; cursor: default; position: relative; }
 .year:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; border-radius: 2px; }
 .year i { display: block; flex: none; background: var(--year-bar); border-radius: 1px; }
@@ -282,6 +285,9 @@ sup a { text-decoration: none; padding-inline: 1px; }
 .years-axis { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 4px; font-size: 11px; line-height: 16px; color: var(--text-faint); font-variant-numeric: tabular-nums; }
 .years-axis span { text-align: center; }
 @media (max-width: 600px) { .years-axis span:not(.keep) { visibility: hidden; } .years-chart { height: 180px; } }
+/* The hint names the gesture the device has. */
+@media (hover: hover) { .hint-touch { display: none; } }
+@media (hover: none) { .hint-point { display: none; } }
 
 /* ── what a name can do (sticky) ─────────────────────────────────────── */
 .names { height: 300vh; }
