@@ -6,11 +6,13 @@ A page for **20 November 2026**. It shows the trans people reported murdered bet
 
 - **The count.** A wall of 273 squares, one for each trans and gender diverse person reported murdered between 1 October 2025 and 30 September 2026. The squares light in reading order as you scroll, and the number climbs with them.
 - **Who was killed.** This year's breakdown from TGEU's Trans Murder Monitoring: gender, race, sex work, where people were killed, and how often anyone was arrested.
-- **By country.** An interactive pixel map of reported murders by country, for this year or since 2008. Choose a country to see its share of the count, its rank and its total since 2008.
+- **By country.** An interactive pixel map of reported murders by country, for this year or since 2008. Choose a country to see its share of the count, its rank and its total since 2008. On a phone the map runs edge to edge and pans sideways.
 - **Undercounting.** Why every number is a minimum, with a year-by-year chart from 2008. Below the last rows of the count, outlined squares appear for the people who were never counted.
 - **Suicide among trans women in China.** Deaths the murder count leaves out, with survey findings, the 2022 hormone sales ban, a link to the One Among Us memorial and China's 12356 support line.
-- **Chosen names.** Research on chosen names, gender-affirming care and family support for trans young people.
+- **Chosen names.** Research on chosen names among trans young people.
+- **Support and care.** Studies on gender-affirming care and family support.
 - **History.** From Rita Hester's murder in 1998 to the first vigil in 1999.
+- **Vigils.** Where to find a vigil, where TGEU lists the people in its count, and helplines you can tap to call.
 
 Every figure is cited at the foot of the page. The data holds counts only: no names or other details of any person.
 

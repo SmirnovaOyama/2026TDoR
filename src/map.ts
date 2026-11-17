@@ -20,6 +20,11 @@ const DIM_MS = 420;
 const COUNT_MS = 650;
 const DIMMED = 0.32;
 
+/** Where the map opens when it is too wide for the screen: the Americas, which hold most of the count. */
+const OPEN_LON = -130;
+/** How far, in CSS pixels, a tap may land from a country with reports and still choose it. */
+const TOUCH_REACH_PX = 14;
+
 const easeOut = (x: number) => 1 - Math.pow(1 - x, 3);
 
 function rangeLabels(steps: number[]) {
@@ -74,8 +79,10 @@ export class PixelMap {
   private readonly jitter: Float32Array;
   private size = 0;
   private dpr = 1;
+  private opened = false;
 
   private readonly canvas = el<HTMLCanvasElement>('map');
+  private readonly frame = this.canvas.parentElement!;
   private readonly tip = el('map-tip');
   private readonly list = el('country-list');
   private readonly legend = el('legend');
@@ -136,7 +143,7 @@ export class PixelMap {
     });
     this.ro.clear.addEventListener('click', () => this.select(null));
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && this.pick) this.select(null); });
-    new ResizeObserver(() => this.resize()).observe(this.canvas.parentElement!);
+    new ResizeObserver(() => this.resize()).observe(this.canvas);
     this.watchReveal();
     this.renderList();
     this.renderLegend();
@@ -159,12 +166,26 @@ export class PixelMap {
   }
 
   private resize() {
-    const width = this.canvas.parentElement!.clientWidth;
+    const width = this.canvas.clientWidth;
+    if (!width) return;
     this.dpr = Math.min(2, window.devicePixelRatio || 1);
     this.size = (width / this.grid.cols) * this.dpr;
     this.canvas.width = Math.round(width * this.dpr);
     this.canvas.height = Math.round(this.size * this.grid.rows);
     this.draw(performance.now());
+    if (!this.opened) {
+      this.opened = true;
+      this.panTo((OPEN_LON - this.grid.lonMin) / this.grid.step, 'start', false);
+    }
+  }
+
+  /** On a phone the map is wider than the screen; this brings a column of it into view. */
+  private panTo(column: number, align: 'start' | 'centre', smooth: boolean) {
+    const { frame, canvas } = this;
+    if (frame.scrollWidth <= frame.clientWidth + 1) return;
+    const x = column * (canvas.clientWidth / this.grid.cols);
+    const left = align === 'centre' ? canvas.offsetLeft + x - frame.clientWidth / 2 : x;
+    frame.scrollTo({ left, behavior: smooth && !reducedMotion ? 'smooth' : 'auto' });
   }
 
   /** The map lights from west to east the first time it comes into view. */
@@ -276,7 +297,9 @@ export class PixelMap {
       cc >= 0 && rr >= 0 && cc < this.grid.cols && rr < this.grid.rows ? this.cells[rr * this.grid.cols + cc] : 0;
     const id = at(c, r);
     if (id) return this.grid.names[id];
-    const reach = generous || (e as PointerEvent).pointerType === 'touch' ? 2 : 1;
+    const cellPx = this.canvas.clientWidth / this.grid.cols;
+    const touch = (e as PointerEvent).pointerType === 'touch';
+    const reach = touch ? Math.max(2, Math.round(TOUCH_REACH_PX / cellPx)) : generous ? 2 : 1;
     let best: string | null = null;
     let bestD = Infinity;
     for (let dr = -reach; dr <= reach; dr++) {
@@ -305,8 +328,8 @@ export class PixelMap {
     this.tip.append(span);
     const half = this.tip.offsetWidth / 2;
     const width = this.canvas.clientWidth;
-    this.tip.style.left = `${clamp(x, half, Math.max(half, width - half))}px`;
-    this.tip.style.top = `${y}px`;
+    this.tip.style.left = `${this.canvas.offsetLeft + clamp(x, half, Math.max(half, width - half))}px`;
+    this.tip.style.top = `${this.canvas.offsetTop + y}px`;
   }
 
   private setHover(name: string | null) {
@@ -345,6 +368,8 @@ export class PixelMap {
     );
     this.renderReadout(true);
     this.kick();
+    // Chosen from the list: on a phone, pan the map so the country is in view when you scroll back up.
+    if (name && !from) this.panTo(origin.c, 'centre', true);
   }
 
   private renderLegend() {

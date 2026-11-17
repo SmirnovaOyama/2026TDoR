@@ -48,7 +48,9 @@ export function setupYears(data: TmmData) {
 
     const tick = document.createElement('span');
     tick.textContent = String(y.year).slice(2);
-    if (y.year === years[0].year || y.year === last.year || y.year % 5 === 0) tick.className = 'keep';
+    // On narrow screens only these labels show: the ends, and every fifth year not crowding them.
+    const roomy = y.year - years[0].year > 2 && last.year - y.year > 2;
+    if (y.year === years[0].year || y.year === last.year || (y.year % 5 === 0 && roomy)) tick.className = 'keep';
     axis.append(tick);
   }
   show(last);
