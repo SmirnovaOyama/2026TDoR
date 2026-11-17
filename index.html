@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#000000">
+  <title>Transgender Day of Remembrance</title>
+  <meta name="description" content="A vigil page for 20 November 2026: the names, the count, where it happened, and what saying a name can do">
+  <meta property="og:title" content="Say their names">
+  <meta property="og:description" content="Transgender Day of Remembrance, 20 November 2026">
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./src/styles/tokens.css">
+  <link rel="stylesheet" href="./src/styles/site.css">
+</head>
+<body>
+<canvas id="field" aria-hidden="true"></canvas>
+
+<main>
+  <header class="hero wrap">
+    <p class="overline">Friday 20 November 2026</p>
+    <h1 class="hero-title"><span>Say</span> <span>their</span> <span>names</span></h1>
+    <p class="hero-sub">Transgender Day of Remembrance</p>
+    <p class="lead">Every year on 20 November, people light candles and read aloud the names of trans people who were killed in the past twelve months. The reading goes slowly on purpose. Each name was someone with a home, friends, a way of walking into a room. Each light on this page stands for one of them.</p>
+    <p class="cue overline"><i></i>Scroll slowly</p>
+  </header>
+
+  <section class="count" data-count aria-labelledby="count-label">
+    <div class="count-stage">
+      <div class="count-grid wrap-wide">
+        <div>
+          <p class="overline" id="count-label">Reported murders, 1 October 2025 to 30 September 2026</p>
+          <p class="count-num" data-fill="total-label"><span id="count" data-fill="total">273</span></p>
+        </div>
+        <ul class="count-facts">
+          <li><span>One every</span><span>32 hours</span></li>
+          <li><span>Countries</span><span data-fill="countries">35</span></li>
+          <li><span>Since 2008</span><span data-fill="all-years">5,592</span></li>
+        </ul>
+        <p class="count-note">Trans and gender diverse people, recorded by TGEU's Trans Murder Monitoring.<sup><a href="#src-1">1</a></sup> The number of countries is the second highest since the count began. Romania and Cameroon reported a killing for the first time.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section wrap" aria-labelledby="who">
+    <div class="section-head" data-reveal>
+      <p class="overline">This year's count</p>
+      <h2 id="who">Who they were</h2>
+    </div>
+    <div class="prose" data-reveal>
+      <p>The killings do not fall evenly. They land hardest on people already pushed to the edge of protection: trans women, people of colour, sex workers, migrants. Seven in ten happened in Latin America and the Caribbean.<sup><a href="#src-1">1</a></sup></p>
+    </div>
+    <div class="stats" data-reveal>
+      <div class="stat" style="--i:0"><div class="stat-head"><span class="stat-label">Trans women or transfeminine people</span><span class="stat-num">95%</span></div><div class="track"><div class="fill" style="--v:.95"></div></div></div>
+      <div class="stat" style="--i:1"><div class="stat-head"><span class="stat-label">Black or Brown</span><span class="stat-num">75%</span></div><div class="track"><div class="fill" style="--v:.75"></div></div></div>
+      <div class="stat" style="--i:2"><div class="stat-head"><span class="stat-label">Sex workers</span><span class="stat-num">32%</span></div><div class="track"><div class="fill" style="--v:.32"></div></div></div>
+      <div class="stat" style="--i:3"><div class="stat-head"><span class="stat-label">Killed in the street</span><span class="stat-num">30%</span></div><div class="track"><div class="fill" style="--v:.30"></div></div></div>
+      <div class="stat" style="--i:4"><div class="stat-head"><span class="stat-label">Killed in their own home</span><span class="stat-num">25%</span></div><div class="track"><div class="fill" style="--v:.25"></div></div></div>
+      <div class="stat" style="--i:5"><div class="stat-head"><span class="stat-label">Younger than 18</span><span class="stat-num">5%</span></div><div class="track"><div class="fill" style="--v:.05"></div></div></div>
+    </div>
+    <div class="aside-facts" data-reveal>
+      <div><b>13</b><span>Killings by police, military or army, up from 5 the year before</span></div>
+      <div><b>9</b><span>Deaths in prisons or police stations, up from 4</span></div>
+      <div><b>21%</b><span>Cases with a documented response where anyone was arrested</span></div>
+    </div>
+  </section>
+
+  <section class="atlas wrap-wide" aria-labelledby="where">
+    <div class="atlas-head" data-reveal>
+      <div class="section-head">
+        <p class="overline">Reported murders by country</p>
+        <h2 id="where">Where it happened</h2>
+      </div>
+      <div class="segmented" role="group" aria-label="Period shown on the map">
+        <button type="button" data-mode="thisYear" aria-pressed="true">This year</button>
+        <button type="button" data-mode="allYears" aria-pressed="false">Since 2008</button>
+      </div>
+    </div>
+    <div class="prose" data-reveal>
+      <p>Each lit square belongs to a country where at least one trans person was reported murdered. The brighter the square, the more people were counted there. Choose a country to see its numbers.</p>
+      <p>Read the dark squares carefully. A country can look dark because it is safer, or because nobody there could safely report a death, or because a family kept quiet. This year TGEU received no reports from Central Asia and warns that this does not mean there was no violence.<sup><a href="#src-1">1</a></sup> The map shows where people were killed. It also shows where someone was able to count.</p>
+    </div>
+    <div class="atlas-body" data-reveal>
+      <div class="map-frame">
+        <canvas id="map" aria-hidden="true"></canvas>
+        <div class="map-tip" id="map-tip" hidden></div>
+        <div class="legend">
+          <span id="legend-label">People reported killed this year</span>
+          <ol id="legend"></ol>
+        </div>
+      </div>
+      <aside class="country-card" id="country-card" aria-live="polite"></aside>
+    </div>
+    <ul class="country-list" id="country-list" aria-label="Countries with reported murders"></ul>
+  </section>
+
+  <section class="missing wrap" data-missing aria-labelledby="missing">
+    <div class="section-head" data-reveal>
+      <p class="overline">Every number here is a minimum</p>
+      <h2 id="missing">The ones the count misses</h2>
+    </div>
+    <p class="pull" data-reveal>A death enters the count only if someone reports it, and only if someone knows the person was trans.</p>
+    <div class="prose" data-reveal>
+      <p>In the United States, coroners' reports and death certificates do not record whether a person was trans.<sup><a href="#src-2">2</a></sup> After a death, some families never say so. Some people are buried under a name they had stopped using, and the record goes with them.</p>
+      <p>This year's total is under 300 for only the second time in a decade. TGEU does not read that as fewer killings. Shrinking civic space, hostile media and governments, and cuts to funding make a death less likely to be reported and recorded.<sup><a href="#src-1">1</a></sup></p>
+    </div>
+    <div class="years" data-reveal>
+      <div class="years-read" aria-live="polite"><b id="years-value">273</b><span id="years-label">TDoR 2026</span></div>
+      <div class="years-chart" id="years-chart" role="group" aria-label="Reported murders each year since 2008"></div>
+      <div class="years-axis" id="years-axis" aria-hidden="true"></div>
+      <p class="caveat">Each year runs from 1 October to 30 September and is named for the November it leads to. Each square is 25 people.</p>
+    </div>
+    <p class="prose" data-reveal><strong>The fainter lights now gathering around you stand for the people who were never counted.</strong> Nobody knows how many there are.</p>
+  </section>
+
+  <section class="names" data-names aria-labelledby="names">
+    <div class="names-stage">
+      <div class="names-grid wrap-wide">
+        <ul class="places" aria-label="Places a young person could use their chosen name">
+          <li>Home</li>
+          <li>School</li>
+          <li>Work</li>
+          <li>Friends</li>
+        </ul>
+        <div class="names-copy">
+          <p class="overline">What a name can do</p>
+          <h2 id="names">The same word keeps the living</h2>
+          <p class="result">For trans young people, each more place where they could use their chosen name went with <em>29%</em> fewer suicidal thoughts and <em>56%</em> less suicidal behaviour.<sup><a href="#src-3">3</a></sup></p>
+          <p class="caveat">A study of 129 trans and gender-nonconforming young people in three US cities, asking about home, school, work and friends</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section wrap" aria-label="More findings">
+    <div class="prose" data-reveal>
+      <p>The vigil is built around names because a name is where recognition starts. Research on the living keeps finding the same thing. Being seen as who you are protects people, and it costs very little to give.</p>
+    </div>
+    <div class="findings" data-reveal>
+      <div class="finding"><b>73%</b><p>Lower odds of suicidal thoughts or self-harm among young people who started puberty blockers or hormones, over about a year of follow-up at a Seattle clinic<sup><a href="#src-4">4</a></sup></p></div>
+      <div class="finding"><b>34%</b><p>Lower odds of a suicide attempt in the past year for trans and nonbinary young people of colour with high support from family<sup><a href="#src-5">5</a></sup></p></div>
+    </div>
+    <p class="caveat" data-reveal>These studies show associations and cannot prove cause. Their samples are small or self-selected. They still point the same way.</p>
+  </section>
+
+  <section class="thesis-wrap wrap-wide">
+    <p class="thesis" id="thesis">We read the names of the dead once a year. We can say the names of the living every day.</p>
+  </section>
+
+  <section class="section wrap" aria-labelledby="began">
+    <div class="section-head" data-reveal>
+      <p class="overline">From one vigil to many</p>
+      <h2 id="began">How it began</h2>
+    </div>
+    <ol class="timeline" id="timeline">
+      <li><time datetime="1998-11-28">28 November 1998</time><p><strong>Rita Hester</strong>, a Black trans woman, is killed in her apartment in Allston, Massachusetts. Newspapers report her death under a name she no longer used and call her a man. Her murder has never been solved.<sup><a href="#src-6">6</a> <a href="#src-8">8</a></sup></p></li>
+      <li><time datetime="1999-02">February 1999</time><p><strong>Gwendolyn Ann Smith</strong> starts Remembering Our Dead, a website listing trans people lost to violence. She bases its design on the Vietnam Veterans Memorial, a wall of names.<sup><a href="#src-6">6</a></sup></p></li>
+      <li><time datetime="1999-11">November 1999</time><p>About a hundred people hold a candlelight vigil in San Francisco and read the names aloud. It becomes the first <strong>Transgender Day of Remembrance</strong>.<sup><a href="#src-6">6</a></sup></p></li>
+      <li><time datetime="2009">2009</time><p>TGEU starts the Trans Murder Monitoring project, with records reaching back to 2008.<sup><a href="#src-7">7</a></sup></p></li>
+      <li><time datetime="2026">2026</time><p>Vigils take place in cities across the world. The count reaches <strong data-fill="all-years">5,592</strong>.<sup><a href="#src-7">7</a></sup></p></li>
+    </ol>
+  </section>
+
+  <section class="vigil wrap" id="vigil" aria-labelledby="light">
+    <div class="section-head" data-reveal>
+      <p class="overline">A minute of silence</p>
+      <h2 id="light">Light a candle</h2>
+    </div>
+    <p class="prose" data-reveal>Vigils usually close with silence. Press and hold the button until the candle catches, and stay with the names for a moment.</p>
+    <div class="candle-row" data-reveal>
+      <div class="candle" aria-hidden="true"><span class="flame"></span><span class="wick"></span><span class="stick"></span></div>
+      <button type="button" class="hold" id="hold-btn" aria-describedby="hold-hint">
+        <svg viewBox="0 0 36 36" aria-hidden="true"><circle class="ring-track" cx="18" cy="18" r="16"></circle><circle class="ring" cx="18" cy="18" r="16"></circle></svg>
+        <span id="hold-label">Hold to light a candle</span>
+      </button>
+      <span id="hold-hint" hidden>Press and hold for two seconds, with a pointer, the space bar or Enter</span>
+    </div>
+    <div id="lit" hidden>
+      <p class="lit-msg">For the <span data-fill="total">273</span> in this year's count, for the <span data-fill="all-years">5,592</span> since 2008, and for everyone the count never reached</p>
+      <div class="flag" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+    </div>
+  </section>
+
+  <section class="help wrap" aria-label="Vigils and support">
+    <div>
+      <h3>Find a vigil</h3>
+      <p>Vigils are held on and around 20 November. Local trans groups, LGBTQ+ centres and Pride organisations usually list them. TGEU gathers the year's materials and the full monitoring data.</p>
+      <p><a href="https://tgeu.org/trans-day-of-remembrance/" target="_blank" rel="noopener">TGEU on Trans Day of Remembrance</a></p>
+    </div>
+    <div>
+      <h3>If you need someone now</h3>
+      <ul class="lines">
+        <li><span>Switchboard LGBT+ helpline, UK</span><b>0800 0119 100</b></li>
+        <li><span>Trans Lifeline, US</span><b>877 565 8860</b></li>
+      </ul>
+    </div>
+  </section>
+
+  <footer class="sources wrap" aria-labelledby="sources">
+    <p class="overline" id="sources">Sources</p>
+    <ol>
+      <li id="src-1">TGEU, <a href="https://tgeu.org/trans-murder-monitoring-2026-shows-that-every-32-hours-a-trans-person-was-murdered/" target="_blank" rel="noopener">Trans Murder Monitoring 2026 shows that every 32 hours, a trans person was murdered</a>. Reported murders, 1 October 2025 to 30 September 2026. The share of Black or Brown victims appears as 75% and 76% in different parts of the release.</li>
+      <li id="src-2">Dinno A. <a href="https://pubmed.ncbi.nlm.nih.gov/28727530/" target="_blank" rel="noopener">Homicide rates of transgender individuals in the United States: 2010–2014</a>. American Journal of Public Health, 2017.</li>
+      <li id="src-3">Russell ST, Pollitt AM, Li G, Grossman AH. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6165713/" target="_blank" rel="noopener">Chosen name use is linked to reduced depressive symptoms, suicidal ideation, and suicidal behavior among transgender youth</a>. Journal of Adolescent Health, 2018;63(4):503–505.</li>
+      <li id="src-4">Tordoff DM, Wanta JW, Collin A, et al. <a href="https://jamanetwork.com/journals/jamanetworkopen/fullarticle/2789423" target="_blank" rel="noopener">Mental health outcomes in transgender and nonbinary youths receiving gender-affirming care</a>. JAMA Network Open, 2022. 104 participants, adjusted odds ratio 0.27.</li>
+      <li id="src-5">The Trevor Project, <a href="https://www.thetrevorproject.org/research-briefs/friends-family-and-community-social-support-and-the-health-of-transgender-and-nonbinary-young-people-of-color/" target="_blank" rel="noopener">Friends, family, and community social support and the health of transgender and nonbinary young people of color</a>. Research brief, adjusted odds ratio 0.66.</li>
+      <li id="src-6">Case Western Reserve University, Encyclopedia of Cleveland History, <a href="https://case.edu/ech/articles/t/transgender-day-remembrance" target="_blank" rel="noopener">Transgender Day of Remembrance</a>. Sources differ on whether the first vigil was on 20 or 28 November 1999.</li>
+      <li id="src-7">TGEU, <a href="https://transmurdermonitoring.tgeu.org/" target="_blank" rel="noopener">Trans Murder Monitoring data portal</a>. Counts by country and by year, read on <span data-fill="fetched">17 November 2026</span>. The map and the yearly chart use these counts only.</li>
+      <li id="src-8">The 19th, <a href="https://19thnews.org/2023/12/boston-police-recommit-to-solving-murder-of-rita-hester-whose-death-inspired-transgender-day-of-remembrance" target="_blank" rel="noopener">Boston police recommit to solving murder of Rita Hester, whose death inspired Transgender Day of Remembrance</a>, December 2023.</li>
+    </ol>
+    <p class="closing">Made for 20 November 2026. The lights on this page appear in the order of this year's count. Out of care for the families, they carry no names.</p>
+  </footer>
+</main>
+
+<script type="module" src="./src/main.ts"></script>
+</body>
+</html>

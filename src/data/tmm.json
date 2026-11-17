@@ -1,0 +1,643 @@
+{
+ "source": "TGEU Trans Murder Monitoring, transmurdermonitoring.tgeu.org",
+ "fetchedAt": "2026-11-17",
+ "period": {
+  "label": "TDoR 2026",
+  "from": "2025-10-01",
+  "to": "2026-09-30"
+ },
+ "total": 273,
+ "totalAllYears": 5592,
+ "years": [
+  {
+   "year": 2008,
+   "count": 115
+  },
+  {
+   "year": 2009,
+   "count": 192
+  },
+  {
+   "year": 2010,
+   "count": 227
+  },
+  {
+   "year": 2011,
+   "count": 263
+  },
+  {
+   "year": 2012,
+   "count": 328
+  },
+  {
+   "year": 2013,
+   "count": 279
+  },
+  {
+   "year": 2014,
+   "count": 267
+  },
+  {
+   "year": 2015,
+   "count": 300
+  },
+  {
+   "year": 2016,
+   "count": 313
+  },
+  {
+   "year": 2017,
+   "count": 329
+  },
+  {
+   "year": 2018,
+   "count": 369
+  },
+  {
+   "year": 2019,
+   "count": 331
+  },
+  {
+   "year": 2020,
+   "count": 352
+  },
+  {
+   "year": 2021,
+   "count": 375
+  },
+  {
+   "year": 2022,
+   "count": 328
+  },
+  {
+   "year": 2023,
+   "count": 321
+  },
+  {
+   "year": 2024,
+   "count": 349
+  },
+  {
+   "year": 2025,
+   "count": 281
+  },
+  {
+   "year": 2026,
+   "count": 273
+  }
+ ],
+ "countries": [
+  {
+   "name": "Brazil",
+   "region": "Latin America and the Caribbean",
+   "thisYear": 86,
+   "allYears": 2117
+  },
+  {
+   "name": "Mexico",
+   "region": "Latin America and the Caribbean",
+   "thisYear": 29,
+   "allYears": 841
+  },
+  {
+   "name": "United States",
+   "region": "North America",
+   "thisYear": 29,
+   "allYears": 507
+  },
+  {
+   "name": "Colombia",
+   "region": "Latin America and the Caribbean",
+   "thisYear": 24,
+   "allYears": 330
+  },
+  {
+   "name": "Argentina",
+   "region": "Latin America and the Caribbean",
+   "thisYear": 16,
+   "allYears": 150
+  },
+  {
+   "name": "Ecuador",
+   "region": "Latin America and the Caribbean",
+   "thisYear": 16,
+   "allYears": 116
+  },
+  {
+   "name": "Pakistan",
+   "region": "Asia",
+   "thisYear": 9,
+   "allYears": 148
+  },
+  {
+   "name": "India",
+   "region": "Asia",
+   "thisYear": 8,
+   "allYears": 157
+  },
+  {
+   "name": "Philippines",
+   "region": "Asia",
+   "thisYear": 7,
+   "allYears": 114
+  },
+  {
+   "name": "Honduras",
+   "region": "Latin America and the Caribbean",
+   "thisYear": 6,
+   "allYears": 133
+  },
+  {
+   "name": "Burkina Faso",
+   "region": "Africa",
+   "thisYear": 4,
+   "allYears": 5
+  },
+  {
+   "name": "Peru",
+   "region": "Latin America and the Caribbean",
+   "thisYear": 3,
+   "allYears": 60
+  },
+  {
+   "name": "Spain",
+   "region": "Europe",
+   "thisYear": 3,
+   "allYears": 20
+  },
+  {
+   "name": "Bangladesh",
+   "region": "Asia",
+   "thisYear": 3,
+   "allYears": 17
+  },
+  {
+   "name": "Nicaragua",
+   "region": "Latin America and the Caribbean",
+   "thisYear": 3,
+   "allYears": 17
+  },
+  {
+   "name": "Venezuela",
+   "region": "Latin America and the Caribbean",
+   "thisYear": 2,
+   "allYears": 142
+  },
+  {
+   "name": "Guatemala",
+   "region": "Latin America and the Caribbean",
+   "thisYear": 2,
+   "allYears": 79
+  },
+  {
+   "name": "Turkey",
+   "region": "Europe",
+   "thisYear": 2,
+   "allYears": 70
+  },
+  {
+   "name": "Italy",
+   "region": "Europe",
+   "thisYear": 2,
+   "allYears": 51
+  },
+  {
+   "name": "Canada",
+   "region": "North America",
+   "thisYear": 2,
+   "allYears": 14
+  },
+  {
+   "name": "Georgia",
+   "region": "Europe",
+   "thisYear": 2,
+   "allYears": 6
+  },
+  {
+   "name": "Iran",
+   "region": "Asia",
+   "thisYear": 2,
+   "allYears": 5
+  },
+  {
+   "name": "El Salvador",
+   "region": "Latin America and the Caribbean",
+   "thisYear": 1,
+   "allYears": 60
+  },
+  {
+   "name": "Bolivia",
+   "region": "Latin America and the Caribbean",
+   "thisYear": 1,
+   "allYears": 29
+  },
+  {
+   "name": "South Africa",
+   "region": "Africa",
+   "thisYear": 1,
+   "allYears": 16
+  },
+  {
+   "name": "United Kingdom",
+   "region": "Europe",
+   "thisYear": 1,
+   "allYears": 15
+  },
+  {
+   "name": "Azerbaijan",
+   "region": "Europe",
+   "thisYear": 1,
+   "allYears": 10
+  },
+  {
+   "name": "Australia",
+   "region": "Oceania",
+   "thisYear": 1,
+   "allYears": 6
+  },
+  {
+   "name": "Nepal",
+   "region": "Asia",
+   "thisYear": 1,
+   "allYears": 6
+  },
+  {
+   "name": "Cambodia",
+   "region": "Asia",
+   "thisYear": 1,
+   "allYears": 3
+  },
+  {
+   "name": "Austria",
+   "region": "Europe",
+   "thisYear": 1,
+   "allYears": 2
+  },
+  {
+   "name": "New Caledonia",
+   "region": "Oceania",
+   "thisYear": 1,
+   "allYears": 2
+  },
+  {
+   "name": "Syria",
+   "region": "Asia",
+   "thisYear": 1,
+   "allYears": 2
+  },
+  {
+   "name": "Cameroon",
+   "region": "Africa",
+   "thisYear": 1,
+   "allYears": 1
+  },
+  {
+   "name": "Romania",
+   "region": "Europe",
+   "thisYear": 1,
+   "allYears": 1
+  },
+  {
+   "name": "Dominican Republic",
+   "region": "Latin America and the Caribbean",
+   "thisYear": 0,
+   "allYears": 50
+  },
+  {
+   "name": "Chile",
+   "region": "Latin America and the Caribbean",
+   "thisYear": 0,
+   "allYears": 29
+  },
+  {
+   "name": "Thailand",
+   "region": "Asia",
+   "thisYear": 0,
+   "allYears": 27
+  },
+  {
+   "name": "Puerto Rico",
+   "region": "Latin America and the Caribbean",
+   "thisYear": 0,
+   "allYears": 21
+  },
+  {
+   "name": "Uruguay",
+   "region": "Latin America and the Caribbean",
+   "thisYear": 0,
+   "allYears": 19
+  },
+  {
+   "name": "France",
+   "region": "Europe",
+   "thisYear": 0,
+   "allYears": 17
+  },
+  {
+   "name": "China",
+   "region": "Asia",
+   "thisYear": 0,
+   "allYears": 16
+  },
+  {
+   "name": "Malaysia",
+   "region": "Asia",
+   "thisYear": 0,
+   "allYears": 16
+  },
+  {
+   "name": "Indonesia",
+   "region": "Asia",
+   "thisYear": 0,
+   "allYears": 13
+  },
+  {
+   "name": "Paraguay",
+   "region": "Latin America and the Caribbean",
+   "thisYear": 0,
+   "allYears": 13
+  },
+  {
+   "name": "Costa Rica",
+   "region": "Latin America and the Caribbean",
+   "thisYear": 0,
+   "allYears": 11
+  },
+  {
+   "name": "Russia",
+   "region": "Europe",
+   "thisYear": 0,
+   "allYears": 11
+  },
+  {
+   "name": "Cuba",
+   "region": "Latin America and the Caribbean",
+   "thisYear": 0,
+   "allYears": 10
+  },
+  {
+   "name": "Panama",
+   "region": "Latin America and the Caribbean",
+   "thisYear": 0,
+   "allYears": 8
+  },
+  {
+   "name": "Iraq",
+   "region": "Asia",
+   "thisYear": 0,
+   "allYears": 6
+  },
+  {
+   "name": "Guyana",
+   "region": "Latin America and the Caribbean",
+   "thisYear": 0,
+   "allYears": 5
+  },
+  {
+   "name": "Myanmar",
+   "region": "Asia",
+   "thisYear": 0,
+   "allYears": 5
+  },
+  {
+   "name": "Netherlands",
+   "region": "Europe",
+   "thisYear": 0,
+   "allYears": 4
+  },
+  {
+   "name": "Fiji",
+   "region": "Oceania",
+   "thisYear": 0,
+   "allYears": 3
+  },
+  {
+   "name": "Germany",
+   "region": "Europe",
+   "thisYear": 0,
+   "allYears": 3
+  },
+  {
+   "name": "Serbia",
+   "region": "Europe",
+   "thisYear": 0,
+   "allYears": 3
+  },
+  {
+   "name": "Sweden",
+   "region": "Europe",
+   "thisYear": 0,
+   "allYears": 3
+  },
+  {
+   "name": "Uganda",
+   "region": "Africa",
+   "thisYear": 0,
+   "allYears": 3
+  },
+  {
+   "name": "Belize",
+   "region": "Latin America and the Caribbean",
+   "thisYear": 0,
+   "allYears": 2
+  },
+  {
+   "name": "Côte d'Ivoire",
+   "region": "Africa",
+   "thisYear": 0,
+   "allYears": 2
+  },
+  {
+   "name": "Greece",
+   "region": "Europe",
+   "thisYear": 0,
+   "allYears": 2
+  },
+  {
+   "name": "Jamaica",
+   "region": "Latin America and the Caribbean",
+   "thisYear": 0,
+   "allYears": 2
+  },
+  {
+   "name": "Namibia",
+   "region": "Africa",
+   "thisYear": 0,
+   "allYears": 2
+  },
+  {
+   "name": "New Zealand",
+   "region": "Oceania",
+   "thisYear": 0,
+   "allYears": 2
+  },
+  {
+   "name": "Portugal",
+   "region": "Europe",
+   "thisYear": 0,
+   "allYears": 2
+  },
+  {
+   "name": "Saudi Arabia",
+   "region": "Asia",
+   "thisYear": 0,
+   "allYears": 2
+  },
+  {
+   "name": "Tanzania",
+   "region": "Africa",
+   "thisYear": 0,
+   "allYears": 2
+  },
+  {
+   "name": "Trinidad and Tobago",
+   "region": "Latin America and the Caribbean",
+   "thisYear": 0,
+   "allYears": 2
+  },
+  {
+   "name": "Afghanistan",
+   "region": "Asia",
+   "thisYear": 0,
+   "allYears": 1
+  },
+  {
+   "name": "Albania",
+   "region": "Europe",
+   "thisYear": 0,
+   "allYears": 1
+  },
+  {
+   "name": "Algeria",
+   "region": "Africa",
+   "thisYear": 0,
+   "allYears": 1
+  },
+  {
+   "name": "Armenia",
+   "region": "Europe",
+   "thisYear": 0,
+   "allYears": 1
+  },
+  {
+   "name": "Belgium",
+   "region": "Europe",
+   "thisYear": 0,
+   "allYears": 1
+  },
+  {
+   "name": "Estonia",
+   "region": "Europe",
+   "thisYear": 0,
+   "allYears": 1
+  },
+  {
+   "name": "Finland",
+   "region": "Europe",
+   "thisYear": 0,
+   "allYears": 1
+  },
+  {
+   "name": "Haiti",
+   "region": "Latin America and the Caribbean",
+   "thisYear": 0,
+   "allYears": 1
+  },
+  {
+   "name": "Hungary",
+   "region": "Europe",
+   "thisYear": 0,
+   "allYears": 1
+  },
+  {
+   "name": "Japan",
+   "region": "Asia",
+   "thisYear": 0,
+   "allYears": 1
+  },
+  {
+   "name": "Kazakhstan",
+   "region": "Asia",
+   "thisYear": 0,
+   "allYears": 1
+  },
+  {
+   "name": "Laos",
+   "region": "Asia",
+   "thisYear": 0,
+   "allYears": 1
+  },
+  {
+   "name": "Liberia",
+   "region": "Africa",
+   "thisYear": 0,
+   "allYears": 1
+  },
+  {
+   "name": "Malawi",
+   "region": "Africa",
+   "thisYear": 0,
+   "allYears": 1
+  },
+  {
+   "name": "Mauritius",
+   "region": "Africa",
+   "thisYear": 0,
+   "allYears": 1
+  },
+  {
+   "name": "Nigeria",
+   "region": "Africa",
+   "thisYear": 0,
+   "allYears": 1
+  },
+  {
+   "name": "Papua New Guinea",
+   "region": "Oceania",
+   "thisYear": 0,
+   "allYears": 1
+  },
+  {
+   "name": "Poland",
+   "region": "Europe",
+   "thisYear": 0,
+   "allYears": 1
+  },
+  {
+   "name": "Singapore",
+   "region": "Asia",
+   "thisYear": 0,
+   "allYears": 1
+  },
+  {
+   "name": "Slovakia",
+   "region": "Europe",
+   "thisYear": 0,
+   "allYears": 1
+  },
+  {
+   "name": "South Korea",
+   "region": "Asia",
+   "thisYear": 0,
+   "allYears": 1
+  },
+  {
+   "name": "Switzerland",
+   "region": "Europe",
+   "thisYear": 0,
+   "allYears": 1
+  },
+  {
+   "name": "Tajikistan",
+   "region": "Asia",
+   "thisYear": 0,
+   "allYears": 1
+  },
+  {
+   "name": "Uzbekistan",
+   "region": "Asia",
+   "thisYear": 0,
+   "allYears": 1
+  }
+ ]
+}

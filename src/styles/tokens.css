@@ -1,0 +1,62 @@
+/* Oyama Tracker design system, dark values, on a true black ground.
+   Names follow design/tokens.json in the main site; values are the dark theme's.
+   The page commits to one dark look, so there is no light block. */
+
+:root {
+  color-scheme: dark;
+
+  /* ground and text */
+  --bg: oklch(0% 0 0);
+  --text: oklch(98.7% 0.002 89);
+  --text-muted: oklch(72% 0.01 88);
+  --text-faint: oklch(51.7% 0.013 90);
+  --border: oklch(28.5% 0.008 87);
+  --border-strong: oklch(42% 0.011 90);
+
+  /* surfaces and controls */
+  --surface: oklch(20.5% 0.006 90);
+  --surface-muted: oklch(16.5% 0.005 90);
+  --surface-hover: oklch(25% 0.007 88);
+  --control-thumb: oklch(33% 0.009 88);
+  --focus-ring: oklch(80.5% 0.085 40);
+
+  /* the one accent, terracotta, used here as candlelight */
+  --accent: oklch(72.5% 0.105 39);
+  --accent-ink: oklch(80.5% 0.085 40);
+  --on-accent: oklch(16.5% 0.005 90);
+  --flame: oklch(72.5% 0.105 39);
+  --flame-core: oklch(88.5% 0.055 42);
+  --wax: oklch(85% 0.008 89);
+  --ghost: oklch(60% 0.012 89);
+
+  /* the heatmap ramp, climbing in lightness so it survives grayscale */
+  --heat-1: oklch(32% 0.062 38);
+  --heat-2: oklch(49% 0.105 37);
+  --heat-3: oklch(65.8% 0.1131 39.15);
+  --heat-4: oklch(80.5% 0.085 40);
+  --heat-5: oklch(88.5% 0.055 42);
+  --map-land: oklch(22% 0.006 88);
+  --map-pick: oklch(98.7% 0.002 89);
+  --year-bar: oklch(42% 0.011 90);
+
+  /* the pixel cat's stripes: the trans flag */
+  --flag-blue: #7fb3ce;
+  --flag-pink: #d69faf;
+  --flag-white: #e4dbde;
+
+  /* type */
+  --font-display: "SF Pro Display", -apple-system, BlinkMacSystemFont, ui-sans-serif, system-ui, "PingFang SC", "Hiragino Sans", "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", ui-sans-serif, system-ui, "PingFang SC", "Hiragino Sans", "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* size */
+  --page-column: 42rem;
+  --page-column-wide: 74rem;
+  --radius-sm: 10px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+
+  /* motion, from the main site's motion.css */
+  --ease-spring: linear(0, 0.012 0.9%, 0.05 2%, 0.11 3.2%, 0.27 5.9%, 0.45 9%, 0.62 12.4%, 0.76 16%, 0.86 19.8%, 0.93 23.8%, 0.975 28%, 1.002 32.6%, 1.016 37.6%, 1.02 43%, 1.016 49.6%, 1.009 57%, 1.003 66%, 1.0005 77%, 1);
+  --ease-focus: cubic-bezier(0.16, 1, 0.3, 1);
+}
