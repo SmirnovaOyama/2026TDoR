@@ -9,7 +9,7 @@ A page for **20 November 2026**. It shows the trans people reported murdered bet
 - **By country.** An interactive pixel map of reported murders by country, for this year or since 2008. Choose a country to see its share of the count, its rank and its total since 2008. On a phone the map runs edge to edge and pans sideways. China is drawn to China's public map standard (自然资规〔2023〕2号): 藏南 and 阿克赛钦 as China, Taiwan, Hong Kong SAR and Macau SAR in the same colour as the mainland, the South China Sea islands, 钓鱼岛 and 赤尾屿 marked, the ten-dash line drawn, and Kashmir left uncoloured.
 - **Undercounting.** Why every number is a minimum, with a year-by-year chart from 2008. Below the last rows of the count, outlined squares appear for the people who were never counted.
 - **Suicide among trans women in China.** Deaths the murder count leaves out, with survey findings, the 2022 hormone sales ban, a link to the One Among Us memorial and China's 12356 support line.
-- **Chosen names.** Research on chosen names among trans young people.
+- **Chosen names.** Research on chosen names among trans young people: what the study asked, what it can and cannot show, a related finding on pronouns, and how often trans people who are killed are first reported under the wrong name or gender.
 - **Support and care.** Studies on gender-affirming care and family support.
 - **History.** From Rita Hester's murder in 1998 to the first vigil in 1999.
 - **Vigils.** Where to find a vigil, a pixel candle to press and hold until it lights, where TGEU lists the people in its count, and helplines you can tap to call.
