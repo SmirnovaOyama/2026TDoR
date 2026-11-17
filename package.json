@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.scripts.json",
     "data": "node scripts/fetch-tmm.ts",
-    "grid": "node scripts/build-grid.ts"
+    "grid": "node scripts/build-grid.ts",
+    "deploy": "npm run build && wrangler deploy"
   },
   "license": "MIT",
   "devDependencies": {
@@ -23,6 +24,7 @@
     "topojson-client": "^3.1.0",
     "typescript": "^7.0.2",
     "vite": "^8.3.8",
-    "world-atlas": "^2.0.2"
+    "world-atlas": "^2.0.2",
+    "wrangler": "^4.164.0"
   }
 }

@@ -29,6 +29,14 @@ npm run preview    # serve the built site
 
 The build uses a relative base, so `dist/` works from any folder or a GitHub Pages project path.
 
+## Deploying
+
+The site runs on Cloudflare as a Worker that serves the static files in `dist/` (see `wrangler.jsonc`), live at https://tdor-2026.oyamasmirnona.workers.dev.
+
+```bash
+npm run deploy     # build, then upload with wrangler
+```
+
 ## Data
 
 - `src/data/tmm.json` holds aggregate counts from TGEU's public [Trans Murder Monitoring portal](https://transmurdermonitoring.tgeu.org/), by country and by year. Refresh it with `npm run data`.
