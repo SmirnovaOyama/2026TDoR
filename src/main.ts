@@ -1,13 +1,13 @@
 import tmmJson from './data/tmm.json';
 import gridJson from './data/grid.json';
 import type { TmmData, WorldGrid } from './data/types';
-import { el, formatDate, formatNumber } from './dom';
-import { Field } from './field';
+import { formatDate, formatNumber } from './dom';
 import { PixelMap } from './map';
 import { setupReveal } from './reveal';
 import { setupScroll } from './scroll';
 import { setupVigil } from './vigil';
 import { setupYears } from './years';
+import { buildUnitRows } from './wall';
 
 const data = tmmJson as TmmData;
 const grid = gridJson as WorldGrid;
@@ -25,11 +25,9 @@ for (const node of document.querySelectorAll<HTMLElement>('[data-fill]')) {
   else if (key in fills) node.textContent = fills[key];
 }
 
-// Roughly as many uncounted lights again as counted ones; nobody knows the real number.
-const field = new Field(el<HTMLCanvasElement>('field'), data.total, 240, 7);
+buildUnitRows();
 setupReveal();
-setupScroll(field);
+setupScroll(data.total);
 new PixelMap(grid, data);
 setupYears(data);
-setupVigil(field);
-field.wake();
+setupVigil();

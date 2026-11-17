@@ -18,31 +18,32 @@
   --surface-muted: oklch(16.5% 0.005 90);
   --surface-hover: oklch(25% 0.007 88);
   --control-thumb: oklch(33% 0.009 88);
-  --focus-ring: oklch(80.5% 0.085 40);
+  --focus-ring: oklch(86% 0.06 355);
 
-  /* the one accent, terracotta, used here as candlelight */
-  --accent: oklch(72.5% 0.105 39);
-  --accent-ink: oklch(80.5% 0.085 40);
+  /* the accent is the trans flag's pink; terracotta stays as the candle's flame */
+  --accent: oklch(86% 0.06 355);
+  --accent-ink: oklch(86% 0.06 355);
   --on-accent: oklch(16.5% 0.005 90);
   --flame: oklch(72.5% 0.105 39);
   --flame-core: oklch(88.5% 0.055 42);
   --wax: oklch(85% 0.008 89);
-  --ghost: oklch(60% 0.012 89);
+  --wall-off: oklch(20.5% 0.006 90);
+  --ghost-line: oklch(51.7% 0.013 90);
 
-  /* the heatmap ramp, climbing in lightness so it survives grayscale */
-  --heat-1: oklch(32% 0.062 38);
-  --heat-2: oklch(49% 0.105 37);
-  --heat-3: oklch(65.8% 0.1131 39.15);
-  --heat-4: oklch(80.5% 0.085 40);
-  --heat-5: oklch(88.5% 0.055 42);
+  /* the heatmap ramp in the flag's pink, climbing in lightness so it survives grayscale */
+  --heat-1: oklch(31% 0.05 355);
+  --heat-2: oklch(45% 0.08 355);
+  --heat-3: oklch(61% 0.095 355);
+  --heat-4: oklch(76% 0.08 355);
+  --heat-5: oklch(89% 0.045 355);
   --map-land: oklch(22% 0.006 88);
-  --map-pick: oklch(98.7% 0.002 89);
+  --map-pick: #9fd4ee;
   --year-bar: oklch(42% 0.011 90);
 
-  /* the pixel cat's stripes: the trans flag */
-  --flag-blue: #7fb3ce;
-  --flag-pink: #d69faf;
-  --flag-white: #e4dbde;
+  /* the pixel cat's stripes: the trans flag, at the system's bright values so they hold on black */
+  --flag-blue: #9fd4ee;
+  --flag-pink: #f6bfce;
+  --flag-white: #f2eef0;
 
   /* type */
   --font-display: "SF Pro Display", -apple-system, BlinkMacSystemFont, ui-sans-serif, system-ui, "PingFang SC", "Hiragino Sans", "Segoe UI", Helvetica, Arial, sans-serif;

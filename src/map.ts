@@ -10,7 +10,17 @@ const LEGEND_LABEL: Record<Mode, string> = {
   thisYear: 'People reported killed this year',
   allYears: 'People reported killed since 2008',
 };
-const REGION_ORDER = ['Latin America and the Caribbean', 'North America', 'Asia', 'Europe', 'Africa', 'Oceania'];
+
+// Motion, in milliseconds
+const RIPPLE_STEP = 26; // delay per cell of distance from where the country was chosen
+const RIPPLE_CELL = 380; // how long each square takes to light
+const SWEEP_STEP = 5; // delay per column when the period changes
+const SWEEP_CELL = 420;
+const DIM_MS = 420;
+const COUNT_MS = 650;
+const DIMMED = 0.32;
+
+const easeOut = (x: number) => 1 - Math.pow(1 - x, 3);
 
 function rangeLabels(steps: number[]) {
   return steps.map((lo, i) => {
@@ -24,7 +34,7 @@ const ordinalRules = new Intl.PluralRules('en-GB', { type: 'ordinal' });
 const SUFFIX: Record<string, string> = { one: 'st', two: 'nd', few: 'rd', other: 'th' };
 const ordinal = (n: number) => `${n}${SUFFIX[ordinalRules.select(n)]}`;
 
-/** "about one in three" for shares big enough to say that way. */
+/** "one in three" for shares big enough to say that way. */
 function oneIn(share: number) {
   if (share < 0.05) return null;
   const words = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty'];
@@ -32,28 +42,56 @@ function oneIn(share: number) {
   return n >= 1 && n <= 20 ? `one in ${words[n]}` : null;
 }
 
+interface Pick {
+  name: string;
+  start: number;
+  c: number;
+  r: number;
+}
+
 export class PixelMap {
   private mode: Mode = 'thisYear';
-  private picked: string | null = null;
+  private prevMode: Mode = 'thisYear';
+  private modeStart = -Infinity;
+  private pick: Pick | null = null;
+  private leaving: Pick | null = null;
   private hover: string | null = null;
+  private dimFrom = 1;
+  private dimTo = 1;
+  private dimStart = -Infinity;
   private reveal = reducedMotion ? 1 : 0;
+  private animating = false;
+  private shown = 0;
+  private countRaf = 0;
+
   private readonly cells: Uint16Array;
+  private readonly centre = new Map<string, { c: number; r: number }>();
   private readonly byName = new Map<string, TmmCountry>();
   private readonly ctx: CanvasRenderingContext2D;
   private readonly heat = [1, 2, 3, 4, 5].map((i) => token(`--heat-${i}`));
   private readonly land = token('--map-land');
-  private readonly pick = token('--map-pick');
+  private readonly pickColour = token('--map-pick');
   private readonly jitter: Float32Array;
   private size = 0;
   private dpr = 1;
 
   private readonly canvas = el<HTMLCanvasElement>('map');
   private readonly tip = el('map-tip');
-  private readonly card = el('country-card');
   private readonly list = el('country-list');
   private readonly legend = el('legend');
   private readonly legendLabel = el('legend-label');
+  private readonly segmented = document.querySelector<HTMLElement>('.segmented')!;
   private readonly modeButtons = [...document.querySelectorAll<HTMLButtonElement>('[data-mode]')];
+  private readonly ro = {
+    sub: el('ro-sub'),
+    title: el('ro-title'),
+    num: el('ro-num'),
+    unit: el('ro-unit'),
+    facts: el('ro-facts'),
+    note: el('ro-note'),
+    clear: el<HTMLButtonElement>('ro-clear'),
+  };
+  private readonly factCells: { dt: HTMLElement; dd: HTMLElement }[];
 
   constructor(private readonly grid: WorldGrid, private readonly data: TmmData) {
     this.ctx = this.canvas.getContext('2d')!;
@@ -63,30 +101,61 @@ export class PixelMap {
       at += grid.rle[i + 1];
     }
     this.jitter = Float32Array.from({ length: grid.cols * grid.rows }, (_, i) => ((i * 2654435761) % 1000) / 1000);
+
+    // Where each country's squares sit on average, for ripples started from the list.
+    const sums = new Map<number, { c: number; r: number; n: number }>();
+    this.cells.forEach((id, i) => {
+      if (!id) return;
+      const s = sums.get(id) ?? { c: 0, r: 0, n: 0 };
+      s.c += i % grid.cols;
+      s.r += Math.floor(i / grid.cols);
+      s.n++;
+      sums.set(id, s);
+    });
+    sums.forEach((s, id) => this.centre.set(grid.names[id], { c: s.c / s.n, r: s.r / s.n }));
+
     for (const c of data.countries) this.byName.set(c.name, c);
     this.canvas.style.aspectRatio = `${grid.cols} / ${grid.rows}`;
+
+    this.factCells = [0, 1, 2].map(() => {
+      const div = document.createElement('div');
+      const dt = document.createElement('dt');
+      const dd = document.createElement('dd');
+      div.append(dt, dd);
+      this.ro.facts.append(div);
+      return { dt, dd };
+    });
 
     this.modeButtons.forEach((b) => b.addEventListener('click', () => this.setMode(b.dataset.mode as Mode)));
     this.canvas.addEventListener('pointermove', (e) => this.onMove(e));
     this.canvas.addEventListener('pointerleave', () => this.setHover(null));
     this.canvas.addEventListener('click', (e) => {
       const name = this.nameAt(e, true);
-      this.select(name === this.picked ? null : name);
+      const { c, r } = this.cellAt(e);
+      this.select(name === this.pick?.name ? null : name, { c, r });
     });
+    this.ro.clear.addEventListener('click', () => this.select(null));
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && this.pick) this.select(null); });
     new ResizeObserver(() => this.resize()).observe(this.canvas.parentElement!);
     this.watchReveal();
-    this.render();
+    this.renderList();
+    this.renderLegend();
+    this.renderReadout(false);
   }
 
-  private count(c: TmmCountry | undefined) {
-    return c ? c[this.mode] : 0;
+  private count(c: TmmCountry | undefined, mode = this.mode) {
+    return c ? c[mode] : 0;
   }
 
-  private level(n: number) {
-    const steps = STEPS[this.mode];
+  private level(n: number, mode = this.mode) {
     let level = 0;
-    steps.forEach((lo, i) => { if (n >= lo) level = i + 1; });
+    STEPS[mode].forEach((lo, i) => { if (n >= lo) level = i + 1; });
     return level;
+  }
+
+  private colourFor(name: string, mode: Mode) {
+    const level = this.level(this.count(this.byName.get(name), mode), mode);
+    return level ? this.heat[level - 1] : this.land;
   }
 
   private resize() {
@@ -95,7 +164,7 @@ export class PixelMap {
     this.size = (width / this.grid.cols) * this.dpr;
     this.canvas.width = Math.round(width * this.dpr);
     this.canvas.height = Math.round(this.size * this.grid.rows);
-    this.draw();
+    this.draw(performance.now());
   }
 
   /** The map lights from west to east the first time it comes into view. */
@@ -107,7 +176,7 @@ export class PixelMap {
       const start = performance.now();
       const step = (now: number) => {
         this.reveal = clamp((now - start) / 2200);
-        this.draw();
+        this.draw(now);
         if (this.reveal < 1) requestAnimationFrame(step);
       };
       requestAnimationFrame(step);
@@ -115,29 +184,82 @@ export class PixelMap {
     io.observe(this.canvas);
   }
 
-  private draw() {
+  /** Runs frames until every transition has settled. */
+  private kick() {
+    if (reducedMotion) { this.draw(performance.now()); return; }
+    if (this.animating) return;
+    this.animating = true;
+    const frame = (now: number) => {
+      const busy = this.draw(now);
+      if (busy) requestAnimationFrame(frame);
+      else this.animating = false;
+    };
+    requestAnimationFrame(frame);
+  }
+
+  /** Draws one frame and reports whether anything is still moving. */
+  private draw(now: number) {
     const { ctx, size, grid } = this;
-    if (!size) return;
+    if (!size) return false;
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     const gap = size > 5 * this.dpr ? Math.max(this.dpr, size * 0.16) : size * 0.08;
     const front = this.reveal * (grid.cols + 24);
+    const motion = !reducedMotion;
+    let busy = false;
+
+    const dimT = motion ? easeOut(clamp((now - this.dimStart) / DIM_MS)) : 1;
+    const dim = this.dimFrom + (this.dimTo - this.dimFrom) * dimT;
+    if (dimT < 1) busy = true;
+
+    const square = (c: number, r: number, scale: number) => {
+      const s = (size - gap) * scale;
+      const off = (size - s) / 2;
+      ctx.fillRect(c * size + off, r * size + off, s, s);
+    };
+
     for (let r = 0; r < grid.rows; r++) {
       for (let c = 0; c < grid.cols; c++) {
         const i = r * grid.cols + c;
         const id = this.cells[i];
         if (!id) continue;
         const name = grid.names[id];
-        const level = this.level(this.count(this.byName.get(name)));
-        const alpha = clamp((front - c - this.jitter[i] * 16) / 8);
-        if (alpha <= 0) continue;
-        if (name === this.picked) ctx.fillStyle = this.pick;
-        else if (name === this.hover) ctx.fillStyle = level ? this.heat[4] : this.heat[0];
-        else ctx.fillStyle = level ? this.heat[level - 1] : this.land;
-        ctx.globalAlpha = level || name === this.picked || name === this.hover ? alpha : alpha * 0.9;
-        ctx.fillRect(c * size + gap / 2, r * size + gap / 2, size - gap, size - gap);
+        const reveal = clamp((front - c - this.jitter[i] * 16) / 8);
+        if (reveal <= 0) continue;
+
+        // Period change: the new colours sweep in from the west.
+        const m = motion ? easeOut(clamp((now - this.modeStart - c * SWEEP_STEP) / SWEEP_CELL)) : 1;
+        if (m < 1) busy = true;
+        const isPicked = name === this.pick?.name;
+        const isLeaving = name === this.leaving?.name;
+        const fade = isPicked || isLeaving ? 1 : dim;
+
+        if (m < 1 && this.prevMode !== this.mode) {
+          ctx.globalAlpha = reveal * fade * (1 - m);
+          ctx.fillStyle = this.colourFor(name, this.prevMode);
+          square(c, r, 1);
+        }
+        ctx.globalAlpha = reveal * fade * (this.prevMode !== this.mode ? m : 1);
+        ctx.fillStyle = name === this.hover && !isPicked ? this.heat[4] : this.colourFor(name, this.mode);
+        square(c, r, 1);
+
+        // A chosen country lights in a ripple from where it was chosen.
+        const lit = (p: Pick, out: boolean) => {
+          const d = Math.hypot(c - p.c, r - p.r);
+          let t = motion ? clamp((now - p.start - (out ? 0 : d * RIPPLE_STEP)) / (out ? DIM_MS : RIPPLE_CELL)) : 1;
+          if (t < 1) busy = true;
+          t = out ? 1 - easeOut(t) : t;
+          if (t <= 0) return;
+          const pop = out ? 1 : 1 + 0.45 * Math.sin(Math.PI * easeOut(t));
+          ctx.globalAlpha = reveal * (out ? t : easeOut(t));
+          ctx.fillStyle = this.pickColour;
+          square(c, r, pop);
+        };
+        if (isPicked) lit(this.pick!, false);
+        else if (isLeaving) lit(this.leaving!, true);
       }
     }
     ctx.globalAlpha = 1;
+    return busy;
   }
 
   private cellAt(e: MouseEvent) {
@@ -177,8 +299,7 @@ export class PixelMap {
     if (!name) return;
     const { x, y } = this.cellAt(e);
     const n = this.count(this.byName.get(name));
-    this.tip.innerHTML = '';
-    this.tip.append(name);
+    this.tip.replaceChildren(name);
     const span = document.createElement('span');
     span.textContent = n ? formatNumber(n) : 'None reported';
     this.tip.append(span);
@@ -192,33 +313,52 @@ export class PixelMap {
     this.tip.hidden = !name;
     if (name === this.hover) return;
     this.hover = name;
-    this.canvas.style.cursor = name ? 'pointer' : 'crosshair';
-    this.draw();
+    this.canvas.style.cursor = name ? 'pointer' : 'default';
+    this.kick();
   }
 
   setMode(mode: Mode) {
+    if (mode === this.mode) return;
+    this.prevMode = this.mode;
     this.mode = mode;
+    this.modeStart = performance.now();
+    this.segmented.style.setProperty('--seg', mode === 'allYears' ? '1' : '0');
     this.modeButtons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
-    this.render();
+    this.renderLegend();
+    this.renderList();
+    this.renderReadout(true);
+    this.kick();
   }
 
-  select(name: string | null) {
-    this.picked = name;
-    this.renderCard();
+  select(name: string | null, from?: { c: number; r: number }) {
+    if (name === (this.pick?.name ?? null)) return;
+    const now = performance.now();
+    this.leaving = this.pick ? { ...this.pick, start: now } : null;
+    const origin = from ?? (name ? this.centre.get(name) : undefined) ?? { c: 0, r: 0 };
+    this.pick = name ? { name, start: now, ...origin } : null;
+    const dimNow = this.dimFrom + (this.dimTo - this.dimFrom) * easeOut(clamp((now - this.dimStart) / DIM_MS));
+    this.dimFrom = dimNow;
+    this.dimTo = name ? DIMMED : 1;
+    this.dimStart = now;
     this.list.querySelectorAll<HTMLButtonElement>('button').forEach((b) =>
       b.setAttribute('aria-pressed', String(b.dataset.name === name)),
     );
-    this.draw();
+    this.renderReadout(true);
+    this.kick();
   }
 
-  private render() {
+  private renderLegend() {
     const labels = rangeLabels(STEPS[this.mode]);
     this.legendLabel.textContent = LEGEND_LABEL[this.mode];
     this.legend.innerHTML = labels
       .map((label, i) => `<li><i style="background:var(--heat-${i + 1})"></i>${label}</li>`)
       .join('');
+  }
 
-    const shown = this.data.countries.filter((c) => c[this.mode] > 0).sort((a, b) => b[this.mode] - a[this.mode] || a.name.localeCompare(b.name));
+  private renderList() {
+    const shown = this.data.countries
+      .filter((c) => c[this.mode] > 0)
+      .sort((a, b) => b[this.mode] - a[this.mode] || a.name.localeCompare(b.name));
     this.list.setAttribute('aria-label', this.mode === 'thisYear' ? 'Countries with reported murders this year' : 'Countries with reported murders since 2008');
     this.list.replaceChildren(
       ...shown.map((c) => {
@@ -226,109 +366,109 @@ export class PixelMap {
         const b = document.createElement('button');
         b.type = 'button';
         b.dataset.name = c.name;
-        b.setAttribute('aria-pressed', String(c.name === this.picked));
+        b.setAttribute('aria-pressed', String(c.name === this.pick?.name));
         const a = document.createElement('span');
         a.textContent = c.name;
         const n = document.createElement('span');
         n.textContent = formatNumber(c[this.mode]);
         b.append(a, n);
-        b.addEventListener('click', () => this.select(c.name === this.picked ? null : c.name));
+        b.addEventListener('click', () => this.select(c.name === this.pick?.name ? null : c.name));
+        b.addEventListener('pointerenter', () => this.setHover(c.name));
+        b.addEventListener('pointerleave', () => this.setHover(null));
         b.addEventListener('focus', () => this.setHover(c.name));
         b.addEventListener('blur', () => this.setHover(null));
         li.append(b);
         return li;
       }),
     );
-    this.renderCard();
-    this.draw();
   }
 
-  private totals() {
-    const total = this.mode === 'thisYear' ? this.data.total : this.data.totalAllYears;
-    const counted = this.data.countries.filter((c) => c[this.mode] > 0);
-    return { total, counted };
-  }
-
-  private renderCard() {
-    const { total, counted } = this.totals();
+  /** Fills the readout; with `animate`, the text comes into focus and the number counts to its new value. */
+  private renderReadout(animate: boolean) {
     const thisYear = this.mode === 'thisYear';
+    const total = thisYear ? this.data.total : this.data.totalAllYears;
+    const counted = this.data.countries.filter((c) => c[this.mode] > 0);
     const period = thisYear ? 'this year' : 'since 2008';
-    const c = this.picked ? this.byName.get(this.picked) : undefined;
+    const otherLabel = thisYear ? 'Since 2008' : 'This year';
 
-    if (!this.picked) {
-      const regions = new Map<string, number>();
-      for (const k of counted) regions.set(k.region, (regions.get(k.region) ?? 0) + k[this.mode]);
-      const rows = REGION_ORDER.filter((r) => regions.get(r)).map((r) => [r, formatNumber(regions.get(r)!)]);
-      this.card.innerHTML = '';
-      this.card.append(
-        line('p', 'region', thisYear ? '1 October 2025 to 30 September 2026' : 'Every year of the count'),
-        line('h3', '', `${counted.length} countries`),
-        line('p', 'big', formatNumber(total)),
-        line('p', 'big-label', `people reported killed ${period}`),
-        table(rows),
-        line('p', 'note', 'Choose a country on the map or in the list below to see its numbers.'),
-      );
-      return;
-    }
+    let sub: string, title: string, value: number, note: string;
+    let facts: [string, string][];
 
-    const name = this.picked;
-    const n = c?.[this.mode] ?? 0;
-    const other = c?.[thisYear ? 'allYears' : 'thisYear'] ?? 0;
-    const rows: [string, string][] = [];
-    let note: string;
-
-    if (n > 0) {
-      const share = n / total;
-      const ahead = counted.filter((k) => k[this.mode] > n).length;
-      const tied = counted.filter((k) => k[this.mode] === n).length > 1;
-      rows.push([thisYear ? "Share of this year's count" : 'Share of all years', `${(share * 100).toFixed(share < 0.1 ? 1 : 0)}%`]);
-      rows.push(['Rank', `${tied ? 'Joint ' : ''}${ordinal(ahead + 1)} of ${counted.length}`]);
-      rows.push([thisYear ? 'Since 2008' : 'This year', formatNumber(other)]);
-      const phrase = oneIn(share);
-      note = phrase
-        ? `About ${phrase} people in the ${thisYear ? "year's" : 'whole'} count ${thisYear ? 'was' : 'were'} killed in ${name}.`
-        : n === 1
-          ? `One person. Their name is read with all the others on 20 November.`
-          : `${formatNumber(n)} people, each with a name that is read on 20 November.`;
-    } else if (other > 0) {
-      rows.push([thisYear ? 'Since 2008' : 'This year', formatNumber(other)]);
-      note = thisYear
-        ? `No murders were reported here this year. This is a count of reports, and reports fall when reporting gets harder.`
-        : `No murders reported before this year.`;
+    if (!this.pick) {
+      const top = [...counted].sort((a, b) => b[this.mode] - a[this.mode])[0];
+      sub = thisYear ? '1 October 2025 to 30 September 2026' : '2008 to 2026';
+      title = 'Worldwide';
+      value = total;
+      facts = [
+        ['Countries', String(counted.length)],
+        ['Highest', `${top.name}, ${formatNumber(top[this.mode])}`],
+        [otherLabel, formatNumber(thisYear ? this.data.totalAllYears : this.data.total)],
+      ];
+      note = 'Select a country on the map or in the list.';
     } else {
-      note = 'No murders have been reported here since the count began in 2008. That can mean less violence. It can also mean deaths that went unreported, or people who were never recognised as trans.';
+      const name = this.pick.name;
+      const c = this.byName.get(name);
+      const n = c?.[this.mode] ?? 0;
+      const other = c?.[thisYear ? 'allYears' : 'thisYear'] ?? 0;
+      sub = c?.region || 'No reports since 2008';
+      title = name;
+      value = n;
+      if (n > 0) {
+        const share = n / total;
+        const ahead = counted.filter((k) => k[this.mode] > n).length;
+        const tied = counted.filter((k) => k[this.mode] === n).length > 1;
+        facts = [
+          ['Share', `${(share * 100).toFixed(share < 0.1 ? 1 : 0)}%`],
+          [tied ? 'Joint rank' : 'Rank', `${ordinal(ahead + 1)} of ${counted.length}`],
+          [otherLabel, formatNumber(other)],
+        ];
+        const phrase = oneIn(share);
+        note = phrase ? `About ${phrase} people in the ${thisYear ? "year's" : 'whole'} count ${thisYear ? 'was' : 'were'} killed in ${name}.` : '';
+      } else {
+        facts = [['Share', 'None'], ['Rank', 'Not ranked'], [otherLabel, formatNumber(other)]];
+        note = other > 0
+          ? `No murders were reported here ${thisYear ? 'this year' : 'before this year'}.`
+          : 'No murders reported since the count began in 2008. This can reflect less violence or less reporting.';
+      }
     }
 
-    this.card.innerHTML = '';
-    this.card.append(line('p', 'region', c?.region || 'No reports'), line('h3', '', name), line('p', 'big', formatNumber(n)), line('p', 'big-label', `people reported killed ${period}`));
-    if (rows.length) this.card.append(table(rows));
-    this.card.append(line('p', 'note', note));
-    const clear = document.createElement('button');
-    clear.type = 'button';
-    clear.className = 'segmented-clear';
-    clear.textContent = 'Back to every country';
-    clear.addEventListener('click', () => this.select(null));
-    this.card.append(clear);
-  }
-}
+    this.ro.sub.textContent = sub;
+    this.ro.title.textContent = title;
+    this.ro.title.title = title;
+    this.ro.unit.textContent = `people reported killed ${period}`;
+    facts.forEach(([k, v], i) => {
+      this.factCells[i].dt.textContent = k;
+      this.factCells[i].dd.textContent = v;
+      this.factCells[i].dd.title = v;
+    });
+    this.ro.note.textContent = note;
+    this.ro.clear.hidden = !this.pick;
 
-function line(tag: 'p' | 'h3', cls: string, text: string) {
-  const node = document.createElement(tag);
-  if (cls) node.className = cls;
-  node.textContent = text;
-  return node;
-}
-
-function table(rows: string[][]) {
-  const dl = document.createElement('dl');
-  for (const [k, v] of rows) {
-    const div = document.createElement('div');
-    const dt = document.createElement('dt');
-    dt.textContent = k;
-    const dd = document.createElement('dd');
-    dd.textContent = v;
-    div.append(dt, dd);
-    dl.append(div);
+    if (animate && !reducedMotion) {
+      const parts = [this.ro.sub, this.ro.title, this.ro.unit, ...this.factCells.map((f) => f.dd), this.ro.note];
+      parts.forEach((p, i) => {
+        p.classList.remove('swap');
+        void p.offsetWidth; // restart the animation
+        p.style.animationDelay = `${i * 35}ms`;
+        p.classList.add('swap');
+      });
+      this.countTo(value);
+    } else {
+      this.shown = value;
+      this.ro.num.textContent = formatNumber(value);
+    }
   }
-  return dl;
+
+  private countTo(target: number) {
+    cancelAnimationFrame(this.countRaf);
+    const from = this.shown;
+    const start = performance.now();
+    const step = (now: number) => {
+      const t = easeOut(clamp((now - start) / COUNT_MS));
+      this.shown = Math.round(from + (target - from) * t);
+      this.ro.num.textContent = formatNumber(this.shown);
+      if (t < 1) this.countRaf = requestAnimationFrame(step);
+    };
+    this.countRaf = requestAnimationFrame(step);
+  }
 }

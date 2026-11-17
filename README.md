@@ -1,18 +1,17 @@
-# Say their names
+# Transgender Day of Remembrance 2026
 
-A vigil page for **Transgender Day of Remembrance, 20 November 2026**.
-
-Every year on 20 November, people light candles and read aloud the names of trans people killed in the past twelve months. This page follows that ritual through one idea: a name is where recognition starts. In death, many trans people are recorded under names they had stopped using, so they drop out of the count. In life, being called by your own name protects you.
+A page for **20 November 2026**. It shows the trans people reported murdered between 1 October 2025 and 30 September 2026, where they were killed, how the count has changed since 2008, and why it undercounts.
 
 ## What is on the page
 
-- **The count.** One light for each of the 273 trans and gender diverse people reported murdered between 1 October 2025 and 30 September 2026. The lights kindle as you scroll and the number climbs with them.
-- **Who they were.** This year's breakdown from TGEU's Trans Murder Monitoring: gender, race, sex work, where people were killed, and how often anyone was arrested.
-- **Where it happened.** An interactive pixel map of reported murders by country, for this year or since 2008. Choose a country to see its share of the count, its rank and its total since 2008. Countries with no reports are explained too, since a dark country can also mean nobody was able to report.
-- **The ones the count misses.** Why every number is a minimum, with a year-by-year chart from 2008. Fainter lights gather for the people who were never counted.
-- **What a name can do.** Research on chosen names, gender-affirming care and family support for trans young people.
-- **How it began.** From Rita Hester's murder in 1998 to the first vigil in 1999.
-- **Light a candle.** Press and hold to close with a moment of silence.
+- **The count.** A wall of 273 squares, one for each trans and gender diverse person reported murdered between 1 October 2025 and 30 September 2026. The squares light in reading order as you scroll, and the number climbs with them.
+- **Who was killed.** This year's breakdown from TGEU's Trans Murder Monitoring: gender, race, sex work, where people were killed, and how often anyone was arrested.
+- **By country.** An interactive pixel map of reported murders by country, for this year or since 2008. Choose a country to see its share of the count, its rank and its total since 2008.
+- **Undercounting.** Why every number is a minimum, with a year-by-year chart from 2008. Below the last rows of the count, outlined squares appear for the people who were never counted.
+- **Suicide among trans women in China.** Deaths the murder count leaves out, with survey findings, the 2022 hormone sales ban, a link to the One Among Us memorial and China's 12356 support line.
+- **Chosen names.** Research on chosen names, gender-affirming care and family support for trans young people.
+- **History.** From Rita Hester's murder in 1998 to the first vigil in 1999.
+- **Light a candle.** Press and hold to light it.
 
 Every figure is cited at the foot of the page. The data holds counts only: no names or other details of any person.
 
@@ -37,12 +36,13 @@ The build uses a relative base, so `dist/` works from any folder or a GitHub Pag
 
 ## Design
 
-Built on the Oyama Tracker design system's dark tokens, on a true black ground: system type, a terracotta accent used as candlelight, the system's heatmap ramp for the map, and the trans flag stripes from its pixel cat. The page has no gradients and respects reduced motion.
+Built on the Oyama Tracker design system's dark tokens, on a true black ground: system type, a terracotta accent used as candlelight, the system's heatmap ramp for the map, and the trans flag stripes from its pixel cat. Every picture on the page is built from one unit, the square. The page has no gradients and respects reduced motion.
 
 ## If you need someone now
 
 - Switchboard LGBT+ helpline, UK: 0800 0119 100
 - Trans Lifeline, US: 877 565 8860
+- Psychological assistance hotline, mainland China: 12356
 
 ## Licence
 

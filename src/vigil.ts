@@ -1,8 +1,7 @@
 import { clamp, el, reducedMotion } from './dom';
-import type { Field } from './field';
 
 /** Press and hold to light the candle; letting go early lets it go out. */
-export function setupVigil(field: Field) {
+export function setupVigil() {
   const vigil = el('vigil');
   const button = el<HTMLButtonElement>('hold-btn');
   const label = el('hold-label');
@@ -40,7 +39,6 @@ export function setupVigil(field: Field) {
     button.setAttribute('aria-pressed', 'true');
     label.textContent = 'Your candle is lit';
     lit.hidden = false;
-    field.kindleAll();
   };
 
   button.addEventListener('pointerdown', (e) => {

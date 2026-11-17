@@ -1,7 +1,7 @@
 import { clamp, el, reducedMotion } from './dom';
-import type { Field } from './field';
+import { buildGhostWall, buildWall } from './wall';
 
-const START = 7;
+const GHOST_ROWS = 8;
 
 /** Progress through a tall section whose stage sticks to the screen. */
 const stickyProgress = (node: Element) => {
@@ -16,51 +16,43 @@ const passProgress = (node: Element, from = 1, to = 0) => {
 };
 const easeOut = (x: number) => 1 - Math.pow(1 - x, 2.2);
 
-export function setupScroll(field: Field) {
+export function setupScroll(total: number) {
+  const hero = document.querySelector<HTMLElement>('.hero')!;
   const countSection = document.querySelector('[data-count]')!;
   const countNum = el('count');
-  const missing = document.querySelector('[data-missing]')!;
+  const setLit = buildWall(el('wall'), total);
+  const ghosts = document.querySelector('[data-ghosts]')!;
+  const setGhosts = buildGhostWall(el('ghost-wall'), 3, GHOST_ROWS);
   const namesSection = document.querySelector('[data-names]')!;
   const places = [...document.querySelectorAll<HTMLElement>('.places li')];
-  const thesis = el('thesis');
   const timeline = el('timeline');
   const steps = [...timeline.querySelectorAll<HTMLElement>('li')];
 
-  // Split the line into words so they come up one at a time.
-  const text = thesis.textContent!.trim();
-  thesis.setAttribute('aria-label', text);
-  thesis.innerHTML = text
-    .split(/\s+/)
-    .map((word) => `<span class="w" aria-hidden="true">${word}</span>`)
-    .join(' ');
-  const words = [...thesis.querySelectorAll<HTMLElement>('.w')];
-  thesis.classList.add('split');
-
   if (reducedMotion) {
-    field.set(field.total, field.ghostTotal);
-    countNum.textContent = String(field.total);
+    setLit(total);
+    setGhosts(GHOST_ROWS);
+    countNum.textContent = String(total);
     places.forEach((p) => p.classList.add('on'));
-    words.forEach((w) => w.classList.add('on'));
     steps.forEach((s) => s.classList.add('past'));
     return;
   }
 
   const update = () => {
-    // The count: the number and the lights rise together.
-    const pc = easeOut(clamp(stickyProgress(countSection) / 0.8));
-    countNum.textContent = String(Math.round(pc * field.total));
-    const kindled = START + Math.round(pc * (field.total - START));
-    // The uncounted: faint lights gather as that section passes.
-    const ghosts = Math.round(clamp(passProgress(missing, 0.9, 0.2) * 1.25) * field.ghostTotal);
-    field.set(kindled, ghosts);
+    // The opening softens and drifts as it leaves.
+    const hr = hero.getBoundingClientRect();
+    hero.style.setProperty('--out', clamp(-hr.top / (hr.height * 0.9)).toFixed(3));
+
+    // The count: the number climbs as the wall lights, square by square.
+    const lit = Math.round(easeOut(clamp(stickyProgress(countSection) / 0.82)) * total);
+    countNum.textContent = String(lit);
+    setLit(lit);
+
+    // The uncounted: outlined rows appear one by one.
+    setGhosts(Math.round(clamp(passProgress(ghosts, 0.85, 0.45) * 1.1) * GHOST_ROWS));
 
     // Four places, one at a time.
-    const lit = Math.min(4, Math.floor(stickyProgress(namesSection) * 5.2));
-    places.forEach((p, i) => p.classList.toggle('on', i < lit));
-
-    // The line, word by word.
-    const n = Math.round(clamp(passProgress(thesis, 0.85, 0.35) * 1.15) * words.length);
-    words.forEach((w, i) => w.classList.toggle('on', i < n));
+    const on = Math.min(4, Math.floor(stickyProgress(namesSection) * 5.2));
+    places.forEach((p, i) => p.classList.toggle('on', i < on));
 
     // The timeline draws down as you read.
     const r = timeline.getBoundingClientRect();
