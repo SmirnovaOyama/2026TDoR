@@ -38,6 +38,12 @@ The site runs on Cloudflare as a Worker that serves the static files in `dist/` 
 npm run deploy     # build, then upload with wrangler
 ```
 
+Only the page itself runs through `worker/index.ts`. It makes the Open Graph and Twitter card addresses absolute for whichever domain was asked, so link previews work on every domain the site is served on without naming any of them here.
+
+## Link previews
+
+The preview image is `public/og.png`, 1200 × 630, drawn from `scripts/og.html`. After the count changes, update the number in that file and run `npm run og` (it uses Chrome on macOS).
+
 ## Data
 
 - `src/data/tmm.json` holds aggregate counts from TGEU's public [Trans Murder Monitoring portal](https://transmurdermonitoring.tgeu.org/), by country and by year. Refresh it with `npm run data`.

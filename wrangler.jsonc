@@ -1,10 +1,14 @@
 {
     "$schema": "node_modules/wrangler/config-schema.json",
-    // A static site: Cloudflare serves the built files in dist/ with no Worker code.
+    // A static site: Cloudflare serves the built files in dist/. Only the page itself
+    // runs through worker/index.ts, which makes the link-preview addresses absolute.
     "name": "tdor-2026",
+    "main": "worker/index.ts",
     "compatibility_date": "2026-11-10",
     "assets": {
         "directory": "./dist",
+        "binding": "ASSETS",
+        "run_worker_first": ["/"],
         "html_handling": "auto-trailing-slash",
         "not_found_handling": "404-page"
     },
